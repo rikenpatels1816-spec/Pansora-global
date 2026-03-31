@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: #0a0a0a; color: #fff; font-family: 'DM Sans', sans-serif; }
+.section {
+  padding: 100px 0 80px;
+  position: relative;
+}
+.section-label {
+  text-align: center; margin-bottom: 48px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.section-num {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase;
+  color: #444; font-family: 'Space Mono', monospace;
+}
+.section-title {
+  font-size: clamp(22px, 3vw, 32px); font-weight: 700; color: #fff;
+}
+.section-sub { font-size: 13px; color: #555; }
+.type-badge {
+  display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.15em;
+  text-transform: uppercase; padding: 4px 12px; border-radius: 100px;
+  border: 1px solid; margin-bottom: 4px;
+}
+hr.divider {
+  border: none; border-top: 1px solid rgba(255,255,255,0.04);
+  margin: 0 40px;
+}
+
+
+#type2 { background: #f5f0eb; }
+#type2 .section-title, #type2 .section-num, #type2 .section-sub { color: #1a1a1a; }
+#type2 .section-num { color: #999; }
+#type2 .section-sub { color: #888; }
+.marquee-wrap { overflow: hidden; position: relative; padding: 8px 0; }
+.marquee-wrap::before, .marquee-wrap::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 120px; z-index: 2; pointer-events: none;
+}
+.marquee-wrap::before { left: 0; background: linear-gradient(to right, #f5f0eb, transparent); }
+.marquee-wrap::after  { right: 0; background: linear-gradient(to left, #f5f0eb, transparent); }
+.marquee-track {
+  display: flex; gap: 20px;
+  animation: marqueeScroll 28s linear infinite;
+  width: max-content;
+}
+.marquee-track:hover { animation-play-state: paused; }
+.marquee-track2 {
+  display: flex; gap: 20px;
+  animation: marqueeScroll 22s linear infinite reverse;
+  width: max-content;
+  margin-top: 20px;
+}
+.marquee-track2:hover { animation-play-state: paused; }
+@keyframes marqueeScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.mq-card {
+  flex-shrink: 0; width: 200px; height: 130px;
+  border-radius: 16px; padding: 20px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+.mq-card:hover { transform: translateY(-6px) scale(1.03); box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
+.mq-icon { font-size: 28px; }
+.mq-name { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: #1a1a1a; }
+.mq-count { font-size: 11px; font-weight: 500; opacity: 0.5; color: #1a1a1a; }
+
+</style>
+</head>
+<body>
+    <section class="section" id="type2">
+  <div class="section-label">
+    <h2 class="section-title">Infinite Scroll Marquee</h2>
+    <p class="section-sub">Two rows scrolling in opposite directions — pauses on hover</p>
+  </div>
+  <div class="marquee-wrap">
+    <div class="marquee-track" id="mqRow1"></div>
+  </div>
+  <div class="marquee-wrap" style="margin-top:0">
+    <div class="marquee-track2" id="mqRow2"></div>
+  </div>
+</section>
+<hr class="divider">
+        <script>
+        const cats = [
+      { icon:'🎨', name:'Design & Illustration', cat:'Creative', desc:'Visual storytelling through art, color, and composition.', count:12, tags:['UI','Branding','Art'], c1:'#ff6b35', c2:'#f7c59f', bc:'#fff3ed', tc:'#ff6b35', gc:'#ffa07a' },
+      { icon:'⚡', name:'Web Development', cat:'Technology', desc:'Modern tools and frameworks for the web of tomorrow.', count:28, tags:['React','CSS','Node'], c1:'#4f8ef7', c2:'#a8c8ff', bc:'#eef4ff', tc:'#4f8ef7', gc:'#7cb9ff' },
+      { icon:'🌿', name:'Health & Wellness', cat:'Lifestyle', desc:'Balance, mindfulness, and a life lived with intention.', count:19, tags:['Fitness','Mind','Sleep'], c1:'#10b981', c2:'#a7f3d0', bc:'#ecfdf5', tc:'#10b981', gc:'#34d399' },
+      { icon:'📈', name:'Finance & Strategy', cat:'Business', desc:'Frameworks and insights to grow and scale anything.', count:34, tags:['Investing','Growth'], c1:'#f59e0b', c2:'#fde68a', bc:'#fffbeb', tc:'#f59e0b', gc:'#fbbf24' },
+      { icon:'🎬', name:'Film & Animation', cat:'Creative', desc:'Stories told through motion, light, and cinematic craft.', count:22, tags:['3D','VFX','Story'], c1:'#ec4899', c2:'#fbcfe8', bc:'#fdf2f8', tc:'#ec4899', gc:'#f472b6' },
+      { icon:'🤖', name:'AI & Machine Learning', cat:'Technology', desc:'Intelligent systems reshaping how we think and work.', count:41, tags:['LLMs','Data','Vision'], c1:'#8b5cf6', c2:'#ddd6fe', bc:'#f5f3ff', tc:'#8b5cf6', gc:'#a78bfa' },
+      { icon:'✈️', name:'Travel & Adventure', cat:'Lifestyle', desc:'Journeys, destinations, and stories waiting to be lived.', count:30, tags:['Asia','Europe','Off-grid'], c1:'#06b6d4', c2:'#a5f3fc', bc:'#ecfeff', tc:'#06b6d4', gc:'#22d3ee' },
+      { icon:'🚀', name:'Startups & Ventures', cat:'Business', desc:'Building the future, one bold idea at a time.', count:25, tags:['VC','MVP','Product'], c1:'#f43f5e', c2:'#fecdd3', bc:'#fff1f2', tc:'#f43f5e', gc:'#fb7185' },
+    ];
+    const bgColors = ['#fff9f0','#f0f7ff','#f0fff7','#fffbf0','#fff0f7','#f0f0ff','#f0fbff','#fff0f0'];
+    function buildMqCard(c,i) {
+      return `<div class="mq-card" style="background:${bgColors[i%8]}">
+        <div class="mq-icon">${c.icon}</div>
+        <div>
+          <div class="mq-name">${c.name}</div>
+          <div class="mq-count">${c.count} items</div>
+        </div>
+      </div>`;
+    }
+    const mqRow1 = document.getElementById('mqRow1');
+    const mqRow2 = document.getElementById('mqRow2');
+    // Duplicate for seamless loop
+    [...cats,...cats].forEach((c,i) => mqRow1.innerHTML += buildMqCard(c,i));
+    [...cats.slice(4),...cats.slice(0,4),...cats.slice(4),...cats.slice(0,4)].forEach((c,i) => mqRow2.innerHTML += buildMqCard(c,i));
+    </script>
+</body>
+</html>
