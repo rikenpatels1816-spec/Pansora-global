@@ -2,16 +2,10 @@ import { useState } from 'react'
 
 const MENUS = [
   { label: 'Home',         hot: false },
-  { label: 'New Arrivals', hot: true  },
-  { label: 'Collections',  hot: false },
-  { label: 'Women',        hot: false },
-  { label: 'Men',          hot: false },
-  { label: 'Accessories',  hot: false },
-  { label: 'Beauty',       hot: false },
-  { label: 'Home & Living',hot: false },
-  { label: 'Sale',         hot: true  },
-  { label: 'Editorial',    hot: false },
-  { label: 'About',        hot: false },
+  { label: 'Top Selling', hot: true  },
+  { label: 'Products',  hot: false },
+  { label: 'About Us',        hot: false },
+  { label: 'Contact Us',          hot: false },
 ]
 
 export default function Navbar() {
@@ -24,7 +18,7 @@ export default function Navbar() {
           {MENUS.map((item, i) => (
             <li key={item.label} className="menuItem">
               <button
-                className={`menuBtn ${active === i ? 'active' : ''} ${item.label === 'Sale' ? 'sale' : ''}`}
+                className={`menuBtn ${active === i ? 'active' : ''} ${item.label === 'Top Selling' ? 'sale' : ''}`}
                 onClick={() => setActive(i)}
               >
                 {item.label}

@@ -4,7 +4,7 @@ import '../assets/Css/Common.css'
 // ── replace with your real API import ──
 // import { getProducts } from '../api/ProductApi'
 async function getProducts() {
-  const res = await fetch('https://fakestoreapi.com/products')
+  const res = await fetch('http://192.168.1.131:3000/api/Home/categories')
   return res.json()
 }
 

@@ -21,6 +21,8 @@
   --radius-pill:  100px;
   --font-display: 'Playfair Display', Georgia, serif;
   --font-body:    'DM Sans', system-ui, sans-serif;
+  --ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth:  cubic-bezier(0.22, 1, 0.36, 1);
   --transition:   0.22s cubic-bezier(0.22, 1, 0.36, 1);
 
   background: linear-gradient(160deg, var(--blue-light) 0%, var(--white) 60%);
@@ -29,7 +31,7 @@
   min-height: 100vh;
 }
 
-/* Subtle background pattern */
+/* Animated background blobs */
 .section::before {
   content: '';
   position: absolute;
@@ -38,6 +40,7 @@
     radial-gradient(circle at 15% 20%, rgba(83,188,213,0.12) 0%, transparent 50%),
     radial-gradient(circle at 85% 75%, rgba(30,79,165,0.08) 0%, transparent 50%);
   pointer-events: none;
+  animation: blobDrift 12s ease-in-out infinite alternate;
 }
 
 /* ── Header ─────────────────────────────────────── */
@@ -49,6 +52,7 @@
   align-items: center;
   gap: 10px;
   position: relative;
+  animation: headerSlideDown 0.7s var(--ease-smooth) both;
 }
 .sectionNum {
   font-size: 10px;
@@ -71,15 +75,15 @@
   color: var(--ink-muted);
   font-family: var(--font-body);
 }
-/* Decorative underline on title */
 .sectionTitle::after {
   content: '';
   display: block;
-  width: 48px;
+  width: 0px;
   height: 3px;
   background: linear-gradient(90deg, var(--blue-deep), var(--blue-sky));
   border-radius: 2px;
   margin: 10px auto 0;
+  animation: underlineGrow 0.8s 0.5s var(--ease-spring) forwards;
 }
 
 /* ── Grid ───────────────────────────────────────── */
@@ -100,15 +104,20 @@
   overflow: hidden;
   position: relative;
   transition:
-    transform var(--transition),
-    box-shadow var(--transition),
-    border-color var(--transition);
+    transform 0.35s var(--ease-spring),
+    box-shadow 0.35s var(--ease-smooth),
+    border-color 0.35s var(--ease-smooth);
   cursor: pointer;
   box-shadow: var(--shadow-sm);
+
+  /* Staggered entrance animation — set via inline style --i */
+  opacity: 0;
+  animation: cardEnter 0.55s var(--ease-spring) forwards;
+  animation-delay: calc(var(--i, 0) * 80ms + 100ms);
 }
 .cardHovered {
-  transform: translateY(-8px);
-  border-color: rgba(30,79,165,0.18);
+  transform: translateY(-10px) scale(1.01);
+  border-color: rgba(30,79,165,0.20);
   box-shadow: var(--shadow-lg);
 }
 
@@ -118,20 +127,24 @@
   top: 14px;
   left: 14px;
   z-index: 2;
-  background: var(--ink);
+  background: #163a7c;
   border-radius: var(--radius-sm);
   padding: 4px 10px;
   box-shadow: var(--shadow-sm);
+  transform: translateX(-4px);
+  opacity: 0;
+  animation: badgePop 0.4s var(--ease-spring) forwards;
+  animation-delay: calc(var(--i, 0) * 80ms + 400ms);
 }
 .rankNum {
   font-family: 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 700;
-  color: var(--gold-accent);
+  color: #fff;
   letter-spacing: 0.05em;
 }
 
-/* ── Image ──────────────────────────────────────── */
+/* ── Image / Carousel ───────────────────────────── */
 .imageWrap {
   position: relative;
   height: 220px;
@@ -153,18 +166,44 @@
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
+
+/* Base image — always rendered, opacity driven by state */
 .image {
-  max-height: 80%;
-  max-width: 80%;
-  object-fit: contain;
-  opacity: 0;
-  transition: opacity 0.4s ease, transform var(--transition);
+  width: 80%;
+  object-fit: cover;
   position: relative;
   z-index: 1;
   filter: drop-shadow(0 4px 12px rgba(30,79,165,0.15));
+  will-change: transform, opacity;
+  /* Default state: visible & settled */
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity 0.25s var(--ease-smooth),
+    transform 0.35s var(--ease-spring);
 }
-.imageVisible { opacity: 1; }
-.card:hover .image { transform: scale(1.07); }
+
+/* While skeleton is shown, hide actual image */
+.imageFaded {
+  opacity: 0;
+}
+
+/* Slide-out state (animating away) */
+.imageSlide {
+  opacity: 0;
+  transform: scale(0.94);
+}
+
+/* Fully active / settled state */
+.imageActive {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Zoom on card hover */
+.card:hover .imageActive {
+  transform: scale(1.07);
+}
 
 /* Overlay */
 .imageOverlay {
@@ -176,10 +215,11 @@
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity var(--transition);
+  transition: opacity 0.3s var(--ease-smooth);
   z-index: 2;
 }
 .card:hover .imageOverlay { opacity: 1; }
+
 .quickView {
   background: var(--white);
   color: var(--blue-deep);
@@ -190,13 +230,99 @@
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  transform: translateY(10px);
-  transition: transform var(--transition), box-shadow var(--transition);
+  transform: translateY(14px) scale(0.95);
+  transition:
+    transform 0.35s var(--ease-spring),
+    box-shadow 0.25s var(--ease-smooth);
   box-shadow: var(--shadow-md);
   letter-spacing: 0.02em;
 }
-.card:hover .quickView { transform: translateY(0); }
-.quickView:hover { box-shadow: var(--shadow-lg); }
+.card:hover .quickView {
+  transform: translateY(0) scale(1);
+}
+.quickView:hover {
+  box-shadow: var(--shadow-lg);
+  transform: scale(1.05) !important;
+}
+.quickView:active {
+  transform: scale(0.97) !important;
+}
+
+/* ── Carousel Buttons ───────────────────────────── */
+.prevBtn,
+.nextBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) scale(0.85);
+  background: rgba(22, 58, 124, 0.65);
+  color: #fff;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 3;
+  opacity: 0;
+  backdrop-filter: blur(4px);
+  transition:
+    opacity 0.25s var(--ease-smooth),
+    transform 0.25s var(--ease-spring),
+    background 0.2s ease;
+}
+.imageWrap:hover .prevBtn,
+.imageWrap:hover .nextBtn {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+.prevBtn:hover,
+.nextBtn:hover {
+  background: rgba(22, 58, 124, 0.92);
+  transform: translateY(-50%) scale(1.12) !important;
+}
+.prevBtn:active,
+.nextBtn:active {
+  transform: translateY(-50%) scale(0.95) !important;
+}
+.prevBtn { left: 8px; }
+.nextBtn { right: 8px; }
+
+/* ── Dot Indicators ─────────────────────────────── */
+.dots {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 5px;
+  z-index: 3;
+}
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.45);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition:
+    width 0.3s var(--ease-spring),
+    background 0.2s ease,
+    transform 0.2s var(--ease-spring);
+}
+.dotActive {
+  width: 18px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.95);
+}
+.dot:hover:not(.dotActive) {
+  background: rgba(255,255,255,0.7);
+  transform: scale(1.2);
+}
 
 /* ── Content ────────────────────────────────────── */
 .content {
@@ -224,6 +350,10 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  transition: color 0.2s ease;
+}
+.card:hover .title {
+  color: var(--blue-deep);
 }
 
 /* ── Rating ─────────────────────────────────────── */
@@ -266,14 +396,33 @@
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
-  transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
+  transition:
+    transform 0.25s var(--ease-spring),
+    box-shadow 0.25s var(--ease-smooth),
+    filter 0.2s ease;
   box-shadow: 0 4px 12px rgba(30,79,165,0.30);
   letter-spacing: 0.02em;
+  position: relative;
+  overflow: hidden;
+}
+/* Ripple layer */
+.addBtn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.15);
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 .addBtn:hover {
-  transform: scale(1.05);
-  filter: brightness(1.1);
-  box-shadow: 0 6px 20px rgba(30,79,165,0.40);
+  transform: scale(1.06);
+  filter: brightness(1.12);
+  box-shadow: 0 6px 20px rgba(30,79,165,0.45);
+}
+.addBtn:hover::after { opacity: 1; }
+.addBtn:active {
+  transform: scale(0.97);
+  filter: brightness(0.97);
 }
 
 /* ── Skeleton ────────────────────────────────────── */
@@ -287,7 +436,14 @@
 }
 .skeletonImg {
   height: 220px;
-  background: var(--blue-pale);
+  background: linear-gradient(
+    90deg,
+    var(--blue-pale) 25%,
+    var(--blue-light) 50%,
+    var(--blue-pale) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
 .skeletonContent {
   padding: 20px;
@@ -298,6 +454,7 @@
 .skeletonLine {
   background: var(--blue-pale);
   border-radius: var(--radius-sm);
+  animation: shimmer 1.5s infinite;
 }
 
 /* ── Error ──────────────────────────────────────── */
@@ -309,12 +466,58 @@
   font-family: var(--font-body);
 }
 
-/* ── Animations ─────────────────────────────────── */
+/* ── Keyframe Animations ─────────────────────────── */
+
+/* Card staggered entrance */
+@keyframes cardEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Header slides down */
+@keyframes headerSlideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Title underline grows from center */
+@keyframes underlineGrow {
+  0%   { width: 0px;  }
+  100% { width: 48px; }
+}
+
+/* Badge slides in from left */
+@keyframes badgePop {
+  0%   { opacity: 0; transform: translateX(-8px) scale(0.85); }
+  100% { opacity: 1; transform: translateX(0)    scale(1);    }
+}
+
+/* Skeleton shimmer sweep */
 @keyframes shimmer {
   0%   { background-position: -200% 0; }
   100% { background-position:  200% 0; }
 }
+
+/* Skeleton pulse */
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
+  0%, 100% { opacity: 1;    }
   50%       { opacity: 0.55; }
+}
+
+/* Background blob drift */
+@keyframes blobDrift {
+  0%   { background-position: 15% 20%, 85% 75%; }
+  100% { background-position: 18% 25%, 82% 70%; }
 }

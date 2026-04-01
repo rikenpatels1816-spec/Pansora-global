@@ -22,9 +22,9 @@ const Card = ({ name, index }) => (
   </div>
 );
 
-export default function Marquee() {
+export default function SubCat() {
   const [categories, setCategories] = useState([]);
-  const navigate = useNavigate(); // ✅ FIXED
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchData() {
@@ -34,16 +34,16 @@ export default function Marquee() {
     fetchData();
   }, []);
 
-  const row1 = [...categories, ...categories];
-  const row2 = [...categories.slice(2), ...categories, ...categories.slice(0,2)];
+  // ✅ prevent crash
+  const safeCategories = Array.isArray(categories) ? categories : [];
+
+  const row1 = [...safeCategories, ...safeCategories];
+  
 
   return (
-    <section className="section" id="type2">
+    <section className="section">
       <div className="section-label">
         <h2 className="section-title">Categories</h2>
-        <p className="section-sub">
-          Live data from API — infinite scroll
-        </p>
 
         <button
           className="see-all-btn"
@@ -53,21 +53,15 @@ export default function Marquee() {
         </button>
       </div>
 
+      {/* ROW 1 */}
       <div className="marquee-wrap">
         <div className="marquee-track">
           {row1.map((cat, i) => (
-            <Card key={i} name={cat} index={i} />
+            <Card key={i} name={cat?.IC_Name} index={i} />
           ))}
         </div>
       </div>
 
-      <div className="marquee-wrap">
-        <div className="marquee-track2">
-          {row2.map((cat, i) => (
-            <Card key={i} name={cat} index={i} />
-          ))}
-        </div>
-      </div>
     </section>
   );
 }
