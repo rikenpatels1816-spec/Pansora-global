@@ -1,26 +1,37 @@
 import React, { useEffect, useState } from "react";
-import { getCategories } from "../api/ProductApi";
+import { useParams, useNavigate } from "react-router-dom";
+import { getCategories, getSubCategories } from "../api/ProductApi";
 import styles from "./CategoriesPage.module.css";
 
-const IMAGE_BASE = "http://192.168.1.131:88/Item_Images/Category/";
+const IMAGE_BASE_CAT = "http://192.168.1.131:88/Item_Images/Category/";
+const IMAGE_BASE_SUB = "http://192.168.1.131:88/Item_Images/SubCategory/";
 
-/* ── Single category card ───────────────────────── */
-function CategoryCard({ cat, index }) {
+/* ── Single item card ───────────────────────────── */
+function ItemCard({ item, index, isSubCat, onClick }) {
   const [imgLoaded, setImgLoaded] = useState(false);
-  const hasImage = Boolean(cat.IC_Image1);
+
+  const name    = isSubCat ? item.ISC_Name  : item.IC_Name;
+  const desc    = isSubCat ? item.ISC_Desc  : item.IC_Desc;
+  const code    = isSubCat ? item.ISC_Code  : item.IC_Code;
+  const rawImg  = isSubCat ? item.ISC_Image1 : item.IC_Image1;
+  const imgSrc  = rawImg
+    ? (isSubCat ? IMAGE_BASE_SUB : IMAGE_BASE_CAT) + rawImg
+    : null;
 
   return (
     <div
       className={styles.card}
       style={{ "--i": index }}
+      onClick={() => onClick && onClick(code)}
     >
+      {/* Image */}
       <div className={styles.imageWrap}>
-        {hasImage && !imgLoaded && <div className={styles.skeleton} />}
+        {imgSrc && !imgLoaded && <div className={styles.skeleton} />}
 
-        {hasImage ? (
+        {imgSrc ? (
           <img
-            src={`${IMAGE_BASE}${cat.IC_Image1}`}
-            alt={cat.IC_Name}
+            src={imgSrc}
+            alt={name}
             className={`${styles.img} ${imgLoaded ? styles.imgLoaded : ""}`}
             onLoad={() => setImgLoaded(true)}
             onError={() => setImgLoaded(true)}
@@ -33,83 +44,145 @@ function CategoryCard({ cat, index }) {
         )}
 
         <div className={styles.overlay}>
-          <button className={styles.overlayBtn}>Browse Products →</button>
+          <button className={styles.overlayBtn}>
+            {isSubCat ? "View Products →" : "Browse →"}
+          </button>
         </div>
       </div>
 
+      {/* Body */}
       <div className={styles.body}>
-        <h3 className={styles.catName}>{cat.IC_Name}</h3>
+        <h3 className={styles.catName}>{name}</h3>
+        {desc && <p className={styles.catDesc}>{desc}</p>}
 
-        {cat.IC_Desc && (
-          <p className={styles.catDesc}>{cat.IC_Desc}</p>
-        )}
+        <div className={styles.catFooter}>
+          <span className={styles.codeTag}>#{code}</span>
+          <span className={styles.arrow}>→</span>
+        </div>
       </div>
     </div>
   );
 }
 
+/* ── Skeleton placeholder ───────────────────────── */
 function SkeletonCard({ index }) {
   return (
-    <div
-      className={styles.skeletonCard}
-      style={{ animationDelay: `${index * 70}ms` }}
-    >
+    <div className={styles.skeletonCard} style={{ animationDelay: `${index * 70}ms` }}>
       <div className={styles.skeletonImg} />
       <div className={styles.skeletonBody}>
         <div className={styles.skeletonLine} style={{ height: 12, width: "35%" }} />
         <div className={styles.skeletonLine} style={{ height: 18, width: "80%" }} />
         <div className={styles.skeletonLine} style={{ height: 13, width: "60%" }} />
-        <div
-          className={styles.skeletonLine}
-          style={{ height: 13, width: "45%", marginTop: 6 }}
-        />
+        <div className={styles.skeletonLine} style={{ height: 13, width: "45%", marginTop: 6 }} />
       </div>
     </div>
   );
 }
 
-export default function CategoriesPage() {
-  const [categories, setCategories] = useState([]);
+/* ── Page ───────────────────────────────────────── */
+export default function CategoryPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [data, setData]       = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError]     = useState(null);
+
+  const isSubCat = Boolean(id);
 
   useEffect(() => {
     async function fetchData() {
+      setLoading(true);
+      setError(null);
       try {
-        const data = await getCategories();
-        setCategories(Array.isArray(data) ? data : []);
+        const res = isSubCat
+          ? await getSubCategories(id)
+          : await getCategories();
+
+        const list =
+          Array.isArray(res)  ? res :
+          res?.data           ? res.data :
+          res?.Data           ? res.Data :
+          [];
+
+        setData(list);
       } catch (err) {
-        setError(err.message);
+        console.error(err);
+        setError(err.message || "Something went wrong.");
       } finally {
         setLoading(false);
       }
     }
     fetchData();
-  }, []);
+  }, [id]);
+
+  // Navigate into a category → subcategory page
+  const handleCardClick = (code) => {
+    if (!isSubCat) {
+      navigate(`/categories/${code}`);
+    }
+    // If already in subcategory, you could navigate to products here
+  };
 
   return (
     <div className={styles.page}>
+
+      {/* Breadcrumb */}
+      <nav className={styles.breadcrumb}>
+        <button className={styles.breadcrumbLink} onClick={() => navigate("/")}>
+          Home
+        </button>
+        <span className={styles.breadcrumbSep}>›</span>
+        {isSubCat ? (
+          <>
+            <button className={styles.breadcrumbLink} onClick={() => navigate("/categories")}>
+              Categories
+            </button>
+            <span className={styles.breadcrumbSep}>›</span>
+            <span className={styles.breadcrumbCurrent}>Sub Categories</span>
+          </>
+        ) : (
+          <span className={styles.breadcrumbCurrent}>Categories</span>
+        )}
+      </nav>
+
+      {/* Header */}
       <header className={styles.header}>
-        <h2 className={styles.sectionTitle}>All Categories</h2>
+        <p className={styles.eyebrow}>{isSubCat ? "Sub Categories" : "Explore"}</p>
+        <h1 className={styles.heading}>
+          <span>{isSubCat ? "Sub Categories" : "All Categories"}</span>
+        </h1>
+        <p className={styles.subheading}>
+          {isSubCat
+            ? "Select a sub-category to explore our products."
+            : "Browse our complete range of product categories."}
+        </p>
+        {!loading && !error && (
+          <div className={styles.countPill}>
+            {data.length} {data.length === 1 ? "Item" : "Items"} Available
+          </div>
+        )}
       </header>
 
+      {/* Error */}
       {error && (
-        <p style={{ textAlign: "center", color: "#e8394b", marginBottom: 32 }}>
-          Failed to load categories: {error}
-        </p>
+        <p className={styles.errorMsg}>Failed to load: {error}</p>
       )}
 
+      {/* Grid */}
       <div className={styles.grid}>
         {loading
-          ? Array.from({ length: 8 }).map((_, i) => (
-              <SkeletonCard key={i} index={i} />
-            ))
-          : categories.length === 0
-          ? (
-            <div className={styles.empty}>No categories found.</div>
-          )
-          : categories.map((cat, i) => (
-              <CategoryCard key={cat.IC_Code} cat={cat} index={i} />
+          ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} index={i} />)
+          : data.length === 0
+          ? <div className={styles.empty}>No items found.</div>
+          : data.map((item, i) => (
+              <ItemCard
+                key={isSubCat ? item.ISC_Code : item.IC_Code}
+                item={item}
+                index={i}
+                isSubCat={isSubCat}
+                onClick={handleCardClick}
+              />
             ))
         }
       </div>

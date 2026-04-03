@@ -57,3 +57,22 @@ export async function getProductById(id) {
 
   return Array.isArray(data) ? data : data.data || [];
 }
+
+export async function getSubCategories(categoryId) {
+  const res = await fetch(
+    `http://192.168.1.131:3000/api/Home/GetOnCategory/${categoryId}`,
+    {
+      method: "GET"
+    }
+  );
+
+  const data = await res.json();
+
+  return Array.isArray(data) ? data : data?.data || [];
+}
+
+export async function getProductsBySubCategory(subId) {
+  const res = await fetch(`${BASE_URL}/GetOnSubCategory/${subId}`);
+  const data = await res.json();
+  return Array.isArray(data) ? data : data?.data || [];
+}

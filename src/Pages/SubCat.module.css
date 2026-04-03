@@ -72,13 +72,13 @@
 .breadcrumbLink {
   color: var(--blue-sky);
   cursor: pointer;
-  transition: color 0.2s ease;
   background: none;
   border: none;
   font: inherit;
   padding: 0;
   letter-spacing: inherit;
   text-transform: inherit;
+  transition: color 0.2s ease;
 }
 .breadcrumbLink:hover { color: var(--blue-deep); }
 .breadcrumbSep { color: var(--blue-pale); }
