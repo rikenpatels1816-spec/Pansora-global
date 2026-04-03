@@ -79,7 +79,6 @@ export default function ProductDetails() {
         </button>
       </div>
 
-      {/* SPECIFICATIONS */}
       <div className={styles.specSection}>
         <h2>Specifications</h2>
 

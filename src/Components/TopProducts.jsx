@@ -75,7 +75,11 @@ function ProductCard({ product, rank }) {
       {/* Content */}
       <div className={styles.content}>
         <h3 className={styles.title}>
-          {product?.Itm_Name || "No Name"}
+          {product?.Itm_Name
+            ? product.Itm_Name.length > 50
+              ? product.Itm_Name.slice(0, 50) + "..."
+              : product.Itm_Name
+            : "No Name"}
         </h3>
 
         <div className={styles.footer}>

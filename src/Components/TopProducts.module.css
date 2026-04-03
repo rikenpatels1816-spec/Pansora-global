@@ -25,7 +25,7 @@
   --ease-smooth:  cubic-bezier(0.22, 1, 0.36, 1);
   --transition:   0.22s cubic-bezier(0.22, 1, 0.36, 1);
 
-  background: linear-gradient(160deg, var(--blue-light) 0%, var(--white) 60%);
+  background: var(--blue-dark);
   padding: 100px 40px 80px;
   position: relative;
   min-height: 100vh;
@@ -65,7 +65,7 @@
 .sectionTitle {
   font-size: clamp(26px, 3.5vw, 40px);
   font-weight: 700;
-  color: var(--ink);
+  color: var(--blue-light);
   font-family: var(--font-display);
   letter-spacing: -0.01em;
   line-height: 1.15;
@@ -80,7 +80,7 @@
   display: block;
   width: 0px;
   height: 3px;
-  background: linear-gradient(90deg, var(--blue-deep), var(--blue-sky));
+  background: linear-gradient(90deg, var(--blue-light), var(--blue-sky));
   border-radius: 2px;
   margin: 10px auto 0;
   animation: underlineGrow 0.8s 0.5s var(--ease-spring) forwards;
@@ -164,7 +164,6 @@
     var(--blue-pale) 75%
   );
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
 }
 
 /* Base image — always rendered, opacity driven by state */
@@ -354,21 +353,6 @@
 .card:hover .title {
   color: var(--blue-deep);
 }
-
-/* ── Rating ─────────────────────────────────────── */
-.ratingRow {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.stars { display: flex; gap: 2px; }
-.star { width: 14px; height: 14px; }
-.ratingCount {
-  font-size: 11px;
-  color: var(--ink-muted);
-  font-family: var(--font-body);
-}
-
 /* ── Footer ─────────────────────────────────────── */
 .footer {
   display: flex;
