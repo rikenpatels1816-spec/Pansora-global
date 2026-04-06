@@ -1,43 +1,66 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import styles from "./ProductDetails.module.css";
 
 const IMAGE_BASE = "http://192.168.1.131:88/Item_Images/Item/";
 
+function LoadingSkeleton() {
+  return <div>Loading...</div>;
+}
+
 export default function ProductDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
   const [index, setIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  /* 🔥 FETCH PRODUCT */
+  /* ───────── FETCH FIXED ───────── */
   useEffect(() => {
+    if (!id) return;
+
     async function fetchProduct() {
+      setLoading(true);
+      setError(null);
+
       try {
-        const res = await fetch("http://192.168.1.131:3000/api/Home/Items", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            Itm_Code: id
-          })
-        });
+        console.log("Fetching ID:", id);
+
+        // ✅ FIX: Send ID in URL (NOT body)
+        const res = await fetch(
+          `http://192.168.1.131:3000/api/Home/Items?Itm_Code=${id}`
+        );
 
         const data = await res.json();
+        console.log("API Response:", data);
 
-        console.log("PRODUCT DETAILS:", data);
+        let productData = null;
 
-        const productData = Array.isArray(data)
-          ? data[0]
-          : data?.data?.[0] || data;
+        if (Array.isArray(data)) {
+          productData = data[0];
+        } else if (data?.data) {
+          productData = Array.isArray(data.data)
+            ? data.data[0]
+            : data.data;
+        } else {
+          productData = data;
+        }
 
-        setProduct(productData);
+        if (!productData) {
+          setError("Product not found");
+        } else {
+          setProduct(productData);
+        }
+
         setIndex(0);
+        setImgLoaded(false);
       } catch (err) {
-        console.error("Error fetching product:", err);
+        console.error(err);
+        setError("Failed to fetch product");
       } finally {
         setLoading(false);
       }
@@ -46,124 +69,118 @@ export default function ProductDetails() {
     fetchProduct();
   }, [id]);
 
-  /* 🔄 LOADING */
-  if (loading) {
+  /* ───────── CAROUSEL ───────── */
+  const images = Array.isArray(product?.Item_Images)
+    ? product.Item_Images
+    : [];
+
+  const changeSlide = useCallback(
+    (getNext) => {
+      if (animating || images.length === 0) return;
+
+      setAnimating(true);
+      setImgLoaded(false);
+
+      setTimeout(() => {
+        setIndex((prev) => getNext(prev));
+        setAnimating(false);
+      }, 200);
+    },
+    [animating, images.length]
+  );
+
+  const next = () => changeSlide((prev) => (prev + 1) % images.length);
+  const prev = () =>
+    changeSlide((prev) => (prev - 1 + images.length) % images.length);
+
+  const currentImage =
+    images.length > 0 ? IMAGE_BASE + images[index] : null;
+
+  /* ───────── STATES ───────── */
+  if (loading) return <LoadingSkeleton />;
+
+  if (error) {
     return (
       <div style={{ padding: 40 }}>
-        <p>Loading product details...</p>
+        <h2>{error}</h2>
+        <button onClick={() => navigate("/")}>Go Home</button>
       </div>
     );
   }
 
   if (!product) {
-    return (
-      <div style={{ padding: 40 }}>
-        <p>No product found</p>
-      </div>
-    );
+    return <h2>Product not found</h2>;
   }
 
-  /* 🔥 SAFE DATA */
-  const images = Array.isArray(product?.Item_Images)
-    ? product.Item_Images
+  const specs = Array.isArray(product?.Specifications)
+    ? product.Specifications
     : [];
 
-  const hasImages = images.length > 0;
-
-  /* 🔁 CAROUSEL */
-  const next = () => {
-    if (!hasImages) return;
-    setAnimating(true);
-    setTimeout(() => {
-      setIndex((prev) => (prev + 1) % images.length);
-      setAnimating(false);
-    }, 200);
-  };
-
-  const prev = () => {
-    if (!hasImages) return;
-    setAnimating(true);
-    setTimeout(() => {
-      setIndex((prev) => (prev - 1 + images.length) % images.length);
-      setAnimating(false);
-    }, 200);
-  };
-
-  const currentImage = hasImages
-    ? IMAGE_BASE + images[index]
-    : "https://via.placeholder.com/400";
-
+  /* ───────── UI ───────── */
   return (
-    <div className={styles.container}>
-      
-      {/* LEFT: IMAGE */}
-      <div className={styles.left}>
-        <div className={styles.carousel}>
-          <img
-            src={currentImage}
-            alt={product.Itm_Name}
-            className={`${styles.mainImage} ${
-              animating ? styles.imageFade : ""
-            }`}
-          />
+    <div className={styles.page}>
+      {/* Breadcrumb */}
+      <nav>
+        <button onClick={() => navigate("/")}>Home</button> ›
+        <button onClick={() => navigate(-1)}> Back</button> ›
+        <span>{product?.Itm_Name || id}</span>
+      </nav>
 
-          {hasImages && images.length > 1 && (
-            <>
-              <button className={styles.prev} onClick={prev}>‹</button>
-              <button className={styles.next} onClick={next}>›</button>
-            </>
+      <div className={styles.layout}>
+        {/* LEFT */}
+        <div>
+          {currentImage ? (
+            <img
+              src={currentImage}
+              alt={product.Itm_Name}
+              style={{ width: 300 }}
+              onLoad={() => setImgLoaded(true)}
+            />
+          ) : (
+            <p>No Image</p>
+          )}
+
+          {images.length > 1 && (
+            <div>
+              <button onClick={prev}>Prev</button>
+              <button onClick={next}>Next</button>
+            </div>
           )}
         </div>
 
-        {/* THUMBNAILS */}
-        {hasImages && (
-          <div className={styles.thumbRow}>
-            {images.map((img, i) => (
-              <img
-                key={i}
-                src={IMAGE_BASE + img}
-                className={`${styles.thumb} ${
-                  i === index ? styles.activeThumb : ""
-                }`}
-                onClick={() => setIndex(i)}
-                alt=""
-              />
+        {/* RIGHT */}
+        <div>
+          <h1>{product?.Itm_Name || "Unnamed Product"}</h1>
+
+          <p>{product?.Itm_Desc || "No description available"}</p>
+
+          <p>
+            <b>SKU:</b> {product?.Itm_Code || id}
+          </p>
+
+          <button>Get Quote</button>
+        </div>
+      </div>
+
+      {/* SPECS */}
+      {specs.length > 0 && (
+        <table border="1" cellPadding="10">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {specs.map((spec, i) => (
+              <tr key={i}>
+                <td>{spec.Itm_Spec_Parameters_Name}</td>
+                <td>{spec.Itm_Spec_Values}</td>
+              </tr>
             ))}
-          </div>
-        )}
-      </div>
-
-      {/* RIGHT: DETAILS */}
-      <div className={styles.right}>
-        <h1>{product?.Itm_Name || "No Name"}</h1>
-
-        <p className={styles.desc}>
-          {product?.Itm_Desc || "No description available"}
-        </p>
-
-        <button className={styles.cta}>
-          Get Quote
-        </button>
-      </div>
-
-      {/* SPECIFICATIONS */}
-      {Array.isArray(product?.Specifications) &&
-        product.Specifications.length > 0 && (
-          <div className={styles.specSection}>
-            <h2>Specifications</h2>
-
-            <table className={styles.table}>
-              <tbody>
-                {product.Specifications.map((spec, i) => (
-                  <tr key={i}>
-                    <td>{spec.Itm_Spec_Parameters_Name}</td>
-                    <td>{spec.Itm_Spec_Values}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

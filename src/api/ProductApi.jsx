@@ -46,7 +46,7 @@ export async function getTopSelling() {
 
 export async function getProductById(id) {
   const res = await fetch(`${BASE_URL}/Items`, {
-    method: "POST",
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
