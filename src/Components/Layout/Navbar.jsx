@@ -1,9 +1,10 @@
 import { useState } from 'react'
+import { href } from 'react-router-dom'
 
 const MENUS = [
-  { label: 'Home',         hot: false },
+  { label: 'Home',  href: "/home" ,        hot: false },
   { label: 'Top Selling', hot: true  },
-  { label: 'Products',  hot: false },
+  { label: 'Products', href: "/categories" ,  hot: false },
   { label: 'About Us',        hot: false },
   { label: 'Contact Us',          hot: false },
 ]
@@ -19,7 +20,10 @@ export default function Navbar() {
             <li key={item.label} className="menuItem">
               <button
                 className={`menuBtn ${active === i ? 'active' : ''} ${item.label === 'Top Selling' ? 'sale' : ''}`}
-                onClick={() => setActive(i)}
+                onClick={() => {
+                  setActive(i);
+                  if (item.href) navigate(item.href);
+                }}  
               >
                 {item.label}
                 {item.hot && <span className="dot" />}

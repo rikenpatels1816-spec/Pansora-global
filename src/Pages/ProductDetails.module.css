@@ -154,11 +154,11 @@
 .mainImage.imageVisible { opacity: 1; transform: scale(1); }
 .mainImage.imageFade    { opacity: 0; transform: scale(0.92); }
 
-/* Carousel nav buttons */
+/* Carousel nav buttons — always visible */
 .carouselBtn {
   position: absolute;
   top: 50%;
-  transform: translateY(-50%) scale(0.88);
+  transform: translateY(-50%);
   z-index: 3;
   width: 38px; height: 38px;
   border-radius: 50%;
@@ -171,22 +171,17 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  opacity: 0;
+  opacity: 1;
   transition:
-    opacity 0.25s var(--ease-smooth),
     transform 0.25s var(--ease-spring),
     background 0.2s ease;
 }
-.carousel:hover .carouselBtn {
-  opacity: 1;
-  transform: translateY(-50%) scale(1);
-}
 .carouselBtn:hover {
   background: rgba(22,58,124,0.92);
-  transform: translateY(-50%) scale(1.12) !important;
+  transform: translateY(-50%) scale(1.12);
 }
 .carouselBtn:active {
-  transform: translateY(-50%) scale(0.95) !important;
+  transform: translateY(-50%) scale(0.92);
 }
 .prevBtn { left: 12px; }
 .nextBtn { right: 12px; }
@@ -204,14 +199,14 @@
 .dot {
   width: 6px; height: 6px;
   border-radius: 50%;
-  background: rgb(126, 161, 221);
+  background: rgba(255,255,255,0.40);
   border: none; padding: 0; cursor: pointer;
   transition: width 0.3s var(--ease-spring), background 0.2s ease, border-radius 0.3s ease;
 }
 .dot.dotActive {
   width: 20px;
   border-radius: 3px;
-  background: rgb(29 76 159);
+  background: rgba(255,255,255,0.95);
 }
 
 /* Thumbnail strip */

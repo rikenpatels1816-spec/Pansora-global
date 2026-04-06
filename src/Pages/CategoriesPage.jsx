@@ -128,6 +128,12 @@ export default function CategoryPage() {
     <div className={styles.page}>
 
       {/* Breadcrumb */}
+
+      {/* Header */}
+      <header className={styles.header}>
+        <h1 className={styles.heading}>
+          <span>{isSubCat ? "Sub Categories" : "All Categories"}</span>
+        </h1> 
       <nav className={styles.breadcrumb}>
         <button className={styles.breadcrumbLink} onClick={() => navigate("/")}>
           Home
@@ -145,23 +151,6 @@ export default function CategoryPage() {
           <span className={styles.breadcrumbCurrent}>Categories</span>
         )}
       </nav>
-
-      {/* Header */}
-      <header className={styles.header}>
-        <p className={styles.eyebrow}>{isSubCat ? "Sub Categories" : "Explore"}</p>
-        <h1 className={styles.heading}>
-          <span>{isSubCat ? "Sub Categories" : "All Categories"}</span>
-        </h1>
-        <p className={styles.subheading}>
-          {isSubCat
-            ? "Select a sub-category to explore our products."
-            : "Browse our complete range of product categories."}
-        </p>
-        {!loading && !error && (
-          <div className={styles.countPill}>
-            {data.length} {data.length === 1 ? "Item" : "Items"} Available
-          </div>
-        )}
       </header>
 
       {/* Error */}

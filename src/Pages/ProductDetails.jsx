@@ -1,185 +1,253 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./ProductDetails.module.css";
+import { getProductById } from "../api/ProductApi";
 
 const IMAGE_BASE = "http://192.168.1.131:88/Item_Images/Item/";
 
+/* ── Loading skeleton ───────────────────────────── */
 function LoadingSkeleton() {
-  return <div>Loading...</div>;
+  return (
+    <div className={styles.loadingPage}>
+      <div className={styles.loadingLayout}>
+        <div className={styles.skeletonBox} style={{ aspectRatio: "1/1" }} />
+        <div className={styles.skeletonLines}>
+          <div className={styles.skeletonLine} style={{ width: "30%", height: 10 }} />
+          <div className={styles.skeletonLine} style={{ width: "80%", height: 32, marginBottom: 8 }} />
+          <div className={styles.skeletonLine} style={{ width: "100%", height: 12 }} />
+          <div className={styles.skeletonLine} style={{ width: "90%",  height: 12 }} />
+          <div className={styles.skeletonLine} style={{ width: "70%",  height: 12 }} />
+          <div className={styles.skeletonLine} style={{ width: 140,    height: 48, borderRadius: 100, marginTop: 12 }} />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function ProductDetails() {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const { id }     = useParams();
+  const navigate   = useNavigate();
 
-  const [product, setProduct] = useState(null);
-  const [index, setIndex] = useState(0);
+  const [product,   setProduct]   = useState(null);
+  const [index,     setIndex]     = useState(0);
   const [animating, setAnimating] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [loading,   setLoading]   = useState(true);
+  const [error,     setError]     = useState(null);
 
-  /* ───────── FETCH FIXED ───────── */
+  /* ── Fetch ── */
   useEffect(() => {
-    if (!id) return;
+  if (!id) return;
 
-    async function fetchProduct() {
+  async function fetchProduct() {
+    try {
       setLoading(true);
-      setError(null);
-
-      try {
-        console.log("Fetching ID:", id);
-
-        // ✅ FIX: Send ID in URL (NOT body)
-        const res = await fetch(
-          `http://192.168.1.131:3000/api/Home/Items?Itm_Code=${id}`
-        );
-
-        const data = await res.json();
-        console.log("API Response:", data);
-
-        let productData = null;
-
-        if (Array.isArray(data)) {
-          productData = data[0];
-        } else if (data?.data) {
-          productData = Array.isArray(data.data)
-            ? data.data[0]
-            : data.data;
-        } else {
-          productData = data;
-        }
-
-        if (!productData) {
-          setError("Product not found");
-        } else {
-          setProduct(productData);
-        }
-
-        setIndex(0);
-        setImgLoaded(false);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to fetch product");
-      } finally {
-        setLoading(false);
-      }
+      const data = await getProductById(id);
+      setProduct(data);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to fetch product");
+    } finally {
+      setLoading(false);
     }
+  }
 
-    fetchProduct();
-  }, [id]);
+  fetchProduct();
+}, [id]);
 
-  /* ───────── CAROUSEL ───────── */
-  const images = Array.isArray(product?.Item_Images)
-    ? product.Item_Images
-    : [];
+  const images    = Array.isArray(product?.Item_Images) ? product.Item_Images : [];
+  const hasImages = images.length > 0;
+  const hasMulti  = images.length > 1;
 
   const changeSlide = useCallback(
-    (getNext) => {
+    (nextIndex) => {
       if (animating || images.length === 0) return;
-
       setAnimating(true);
       setImgLoaded(false);
-
       setTimeout(() => {
-        setIndex((prev) => getNext(prev));
+        setIndex(nextIndex);
         setAnimating(false);
-      }, 200);
+      }, 220);
     },
     [animating, images.length]
   );
 
-  const next = () => changeSlide((prev) => (prev + 1) % images.length);
-  const prev = () =>
-    changeSlide((prev) => (prev - 1 + images.length) % images.length);
+  const next = () => changeSlide((index + 1) % images.length);
+  const prev = () => changeSlide((index - 1 + images.length) % images.length);
+  const goTo = (i) => { if (i !== index) changeSlide(i); };
 
-  const currentImage =
-    images.length > 0 ? IMAGE_BASE + images[index] : null;
+  const currentImage = hasImages ? IMAGE_BASE + images[index] : null;
 
-  /* ───────── STATES ───────── */
   if (loading) return <LoadingSkeleton />;
 
   if (error) {
     return (
-      <div style={{ padding: 40 }}>
-        <h2>{error}</h2>
-        <button onClick={() => navigate("/")}>Go Home</button>
+      <div className={styles.notFound}>
+        <div className={styles.notFoundIcon}>⊟</div>
+        <p className={styles.notFoundText}>{error}</p>
+        <button className={styles.ctaBtn} style={{ marginTop: 16 }} onClick={() => navigate("/")}>
+          Go Home
+        </button>
       </div>
     );
   }
 
   if (!product) {
-    return <h2>Product not found</h2>;
+    return (
+      <div className={styles.notFound}>
+        <div className={styles.notFoundIcon}>⊟</div>
+        <p className={styles.notFoundText}>Product not found</p>
+      </div>
+    );
   }
 
-  const specs = Array.isArray(product?.Specifications)
-    ? product.Specifications
-    : [];
+  const specs = Array.isArray(product?.Specifications) ? product.Specifications : [];
 
-  /* ───────── UI ───────── */
+  /* ── UI ── */
   return (
     <div className={styles.page}>
+
       {/* Breadcrumb */}
-      <nav>
-        <button onClick={() => navigate("/")}>Home</button> ›
-        <button onClick={() => navigate(-1)}> Back</button> ›
-        <span>{product?.Itm_Name || id}</span>
+      <nav className={styles.breadcrumb}>
+        <button className={styles.breadcrumbLink} onClick={() => navigate("/")}>Home</button>
+        <span className={styles.breadcrumbSep}>›</span>
+        <button className={styles.breadcrumbLink} onClick={() => navigate("/categories")}>Categories</button>
+        <span className={styles.breadcrumbSep}>›</span>
+        <button className={styles.breadcrumbLink} onClick={() => navigate(-1)}>Products</button>
+        <span className={styles.breadcrumbSep}>›</span>
+        <span className={styles.breadcrumbCurrent}>{product?.Itm_Name || id}</span>
       </nav>
 
+      {/* ── Main layout ── */}
       <div className={styles.layout}>
-        {/* LEFT */}
-        <div>
-          {currentImage ? (
-            <img
-              src={currentImage}
-              alt={product.Itm_Name}
-              style={{ width: 300 }}
-              onLoad={() => setImgLoaded(true)}
-            />
-          ) : (
-            <p>No Image</p>
-          )}
 
-          {images.length > 1 && (
-            <div>
-              <button onClick={prev}>Prev</button>
-              <button onClick={next}>Next</button>
+        {/* LEFT — carousel */}
+        <div className={styles.leftPanel}>
+          <div className={styles.carousel}>
+
+            {/* Shimmer while loading image */}
+            {!imgLoaded && <div className={styles.imgSkeleton} />}
+
+            {currentImage ? (
+              <img
+                key={index}
+                src={currentImage}
+                alt={product.Itm_Name}
+                className={`${styles.mainImage} ${
+                  animating ? styles.imageFade : styles.imageVisible
+                }`}
+                onLoad={() => setImgLoaded(true)}
+                onError={() => setImgLoaded(true)}
+              />
+            ) : (
+              <div style={{
+                display: "flex", flexDirection: "column",
+                alignItems: "center", gap: 8,
+                color: "var(--ink-muted)", fontFamily: "var(--font-mono)", fontSize: 12
+              }}>
+                <span style={{ fontSize: 36, opacity: 0.4 }}>⊟</span>
+                <span style={{color: "var(--ink)"}}>No Image</span>
+              </div>
+            )}
+
+            {/* Arrows — always visible */}
+            {hasMulti && (
+              <>
+                <button className={`${styles.carouselBtn} ${styles.prevBtn}`} onClick={prev}>‹</button>
+                <button className={`${styles.carouselBtn} ${styles.nextBtn}`} onClick={next}>›</button>
+              </>
+            )}
+
+            {/* Dot indicators */}
+            {hasMulti && (
+              <div className={styles.dots}>
+                {images.map((_, i) => (
+                  <button
+                    key={i}
+                    className={`${styles.dot} ${i === index ? styles.dotActive : ""}`}
+                    onClick={() => goTo(i)}
+                    aria-label={`Image ${i + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Thumbnails */}
+          {hasMulti && (
+            <div className={styles.thumbRow}>
+              {images.map((img, i) => (
+                <img
+                  key={i}
+                  src={IMAGE_BASE + img}
+                  alt={`Thumbnail ${i + 1}`}
+                  className={`${styles.thumb} ${i === index ? styles.activeThumb : ""}`}
+                  onClick={() => goTo(i)}
+                />
+              ))}
             </div>
           )}
         </div>
 
-        {/* RIGHT */}
-        <div>
-          <h1>{product?.Itm_Name || "Unnamed Product"}</h1>
+        {/* RIGHT — details */}
+        <div className={styles.rightPanel}>
 
-          <p>{product?.Itm_Desc || "No description available"}</p>
+          {/* SKU badge */}
+          <div className={styles.codeBadge}>
+            <span>SKU</span>
+            <span>#{product?.Itm_Code || id}</span>
+          </div>
 
-          <p>
-            <b>SKU:</b> {product?.Itm_Code || id}
-          </p>
+          {/* Product name */}
+          <h1 className={styles.productName}>
+            {product?.Itm_Name || "Unnamed Product"}
+          </h1>
 
-          <button>Get Quote</button>
+          <hr className={styles.divider} />
+
+          {/* Description */}
+          <div>
+            <p className={styles.descLabel}>Description</p>
+            <p className={styles.desc}>
+              {product?.Itm_Desc || "No description available for this product."}
+            </p>
+          </div>
+
+          <hr className={styles.divider} />
+
+          {/* CTA */}
+          <div className={styles.ctaGroup}>
+            <button className={styles.ctaBtn}>Get Quote</button>
+            <button className={styles.shareBtn} title="Share">↗</button>
+          </div>
         </div>
       </div>
 
-      {/* SPECS */}
+      {/* ── Specifications table ── */}
       {specs.length > 0 && (
-        <table border="1" cellPadding="10">
-          <thead>
-            <tr>
-              <th>Parameter</th>
-              <th>Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            {specs.map((spec, i) => (
-              <tr key={i}>
-                <td>{spec.Itm_Spec_Parameters_Name}</td>
-                <td>{spec.Itm_Spec_Values}</td>
+        <div className={styles.specSection}>
+          <div className={styles.specHeader}>
+            <h2 className={styles.specTitle}>Specifications</h2>
+            <div className={styles.specLine} />
+          </div>
+
+          <table className={styles.specTable}>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Value</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {specs.map((spec, i) => (
+                <tr key={i} style={{ "--row-i": i }}>
+                  <td>{spec.Itm_Spec_Parameters_Name}</td>
+                  <td>{spec.Itm_Spec_Values}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

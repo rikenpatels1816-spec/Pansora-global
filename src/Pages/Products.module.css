@@ -236,8 +236,8 @@
 .imgFade    { opacity: 0;  transform: scale(0.93); }
 .imgHidden  { opacity: 0; }
 
-/* On card hover, zoom the current image */
-.card:hover .imgVisible { transform: scale(1.07); }
+/* Subtle zoom on hover — no overlay blocking carousel */
+.card:hover .imgVisible { transform: scale(1.04); }
 
 /* No image placeholder */
 .noImg {
@@ -269,11 +269,11 @@
 .arrowBtn {
   position: absolute;
   top: 50%;
-  transform: translateY(-50%) scale(0.85);
+  transform: translateY(-50%);
   z-index: 3;
   width: 30px; height: 30px;
   border-radius: 50%;
-  background: rgba(22,58,124,0.65);
+  background: rgba(22,58,124,0.60);
   backdrop-filter: blur(6px);
   border: 1px solid rgba(255,255,255,0.15);
   color: #fff;
@@ -283,22 +283,17 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  opacity: 0;
+  opacity: 1;
   transition:
-    opacity 0.22s var(--ease-smooth),
     transform 0.22s var(--ease-spring),
     background 0.18s ease;
 }
-.carousel:hover .arrowBtn {
-  opacity: 1;
-  transform: translateY(-50%) scale(1);
-}
 .arrowBtn:hover {
   background: rgba(22,58,124,0.92);
-  transform: translateY(-50%) scale(1.12) !important;
+  transform: translateY(-50%) scale(1.12);
 }
 .arrowBtn:active {
-  transform: translateY(-50%) scale(0.94) !important;
+  transform: translateY(-50%) scale(0.94);
 }
 .prevArrow { left: 8px; }
 .nextArrow { right: 8px; }
@@ -330,37 +325,8 @@
   background: rgba(255,255,255,0.95);
 }
 
-/* Hover overlay with CTA */
-.overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(160deg, rgba(22,58,124,0.62), rgba(30,79,165,0.46));
-  backdrop-filter: blur(2px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.28s var(--ease-smooth);
-  z-index: 4;
-}
-.card:hover .overlay { opacity: 1; }
-.overlayBtn {
-  background: var(--white);
-  color: var(--blue-deep);
-  border: none;
-  border-radius: var(--radius-pill);
-  padding: 10px 22px;
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  letter-spacing: 0.04em;
-  box-shadow: var(--shadow-md);
-  transform: translateY(12px) scale(0.94);
-  transition: transform 0.35s var(--ease-spring), box-shadow 0.25s ease;
-}
-.card:hover .overlayBtn { transform: translateY(0) scale(1); }
-.overlayBtn:hover { box-shadow: var(--shadow-lg); transform: scale(1.06) !important; }
+
+
 
 /* ── Card body ──────────────────────────────────── */
 .body {

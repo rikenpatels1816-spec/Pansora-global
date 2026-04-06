@@ -43,19 +43,14 @@ export async function getTopSelling() {
 
   return Array.isArray(data) ? data : data.data || [];
 }
-
 export async function getProductById(id) {
-  const res = await fetch(`${BASE_URL}/Items`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({})
-  });
+  const res = await fetch(`${BASE_URL}/GetOnItem/${id}`);
 
   const data = await res.json();
 
-  return Array.isArray(data) ? data : data.data || [];
+  return Array.isArray(data)
+    ? data[0]
+    : data?.data?.[0] || data;
 }
 
 export async function getSubCategories(categoryId) {

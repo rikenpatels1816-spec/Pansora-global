@@ -11,8 +11,6 @@ import TopProducts from './Components/TopProducts'
 const App = () => {
   return (
     <div className='app'>
-      <Header />
-      <Navbar />
       <Hero />
       <SubCat />
       <TopProducts />

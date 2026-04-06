@@ -55,6 +55,7 @@
 /* ── Breadcrumb ─────────────────────────────────── */
 .breadcrumb {
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 8px;
   font-family: var(--font-mono);
@@ -70,7 +71,7 @@
   animation: fadeIn 0.5s 0.1s var(--ease-smooth) forwards;
 }
 .breadcrumbLink {
-  color: var(--blue-sky);
+  color: var(--blue-deep);
   cursor: pointer;
   transition: color 0.2s ease;
   background: none;
@@ -81,7 +82,7 @@
   text-transform: inherit;
 }
 .breadcrumbLink:hover { color: var(--blue-deep); }
-.breadcrumbSep { color: var(--blue-pale); }
+.breadcrumbSep { color: var(--ink); }
 .breadcrumbCurrent { color: var(--ink-muted); }
 
 /* ── Header ─────────────────────────────────────── */

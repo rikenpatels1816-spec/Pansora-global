@@ -103,34 +103,22 @@ export default function SubCat() {
   return (
     <div className={styles.page}>
 
-      {/* Breadcrumb */}
-      <nav className={styles.breadcrumb}>
-        <button className={styles.breadcrumbLink} onClick={() => navigate("/")}>
-          Home
-        </button>
-        <span className={styles.breadcrumbSep}>›</span>
-        <button className={styles.breadcrumbLink} onClick={() => navigate("/categories")}>
-          Categories
-        </button>
-        <span className={styles.breadcrumbSep}>›</span>
-        <span className={styles.breadcrumbCurrent}>Sub Categories</span>
-      </nav>
-
       {/* Header */}
       <header className={styles.header}>
-        <p className={styles.eyebrow}>Browse</p>
         <h1 className={styles.heading}>
           <span>Sub Categories</span>
         </h1>
-        <p className={styles.subheading}>
-          Select a sub-category to explore our full range of products.
-        </p>
-        {!loading && !error && (
-          <div className={styles.countPill}>
-            {subCategories.length}{" "}
-            {subCategories.length === 1 ? "Sub Category" : "Sub Categories"} Available
-          </div>
-        )}
+        <nav className={styles.breadcrumb}>
+          <button className={styles.breadcrumbLink} onClick={() => navigate("/")}>
+            Home
+          </button>
+          <span className={styles.breadcrumbSep}>›</span>
+          <button className={styles.breadcrumbLink} onClick={() => navigate("/categories")}>
+            Categories
+          </button>
+          <span className={styles.breadcrumbSep}>›</span>
+          <span className={styles.breadcrumbCurrent}>Sub Categories</span>
+        </nav>
       </header>
 
       {/* Error */}
