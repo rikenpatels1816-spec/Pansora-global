@@ -1,39 +1,42 @@
-import { useState } from 'react'
-import { href } from 'react-router-dom'
+import { useLocation, useNavigate } from "react-router-dom";
 
 const MENUS = [
-  { label: 'Home',  href: "/home" ,        hot: false },
-  { label: 'Top Selling', hot: true  },
-  { label: 'Products', href: "/categories" ,  hot: false },
-  { label: 'About Us',        hot: false },
-  { label: 'Contact Us',          hot: false },
-]
+  { label: "Home", href: "/", hot: false },
+  { label: "Top Selling", href: "#top-selling", hot: true },
+  { label: "Products", href: "/products", hot: false },
+  { label: "About Us", href: "/about", hot: false },
+  { label: "Contact Us", href: "/contact", hot: false },
+];
 
 export default function Navbar() {
-  const [active, setActive] = useState(0)
+  const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <nav className="nav">
       <div className="inner">
         <ul className="menuList">
-          {MENUS.map((item, i) => (
-            <li key={item.label} className="menuItem">
-              <button
-                className={`menuBtn ${active === i ? 'active' : ''} ${item.label === 'Top Selling' ? 'sale' : ''}`}
-                onClick={() => {
-                  setActive(i);
-                  if (item.href) navigate(item.href);
-                }}  
-              >
-                {item.label}
-                {item.hot && <span className="dot" />}
-                {active === i && <span className="underline" />}
-              </button>
-            </li>
-          ))}
-        </ul>
+          {MENUS.map((item, i) => {
+            const isActive = location.pathname === item.href;
 
+            return (
+              <li key={item.label} className="menuItem">
+                <button
+                  className={`menuBtn ${
+                    isActive ? "active" : ""
+                  } ${item.hot ? "sale" : ""}`}
+                  onClick={() => navigate(item.href)}
+                >
+                  {item.label}
+
+                  {item.hot && <span className="dot" />}
+                  {isActive && <span className="underline" />}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </nav>
-  )
+  );
 }
