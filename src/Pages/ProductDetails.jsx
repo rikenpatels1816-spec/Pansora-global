@@ -113,7 +113,7 @@ export default function ProductDetails() {
         <span className={styles.breadcrumbSep}>›</span>
         <button className={styles.breadcrumbLink} onClick={() => navigate("/categories")}>Categories</button>
         <span className={styles.breadcrumbSep}>›</span>
-        <button className={styles.breadcrumbLink} onClick={() => navigate(-1)}>Products</button>
+        <button className={styles.breadcrumbLink} onClick={() => navigate("/products")}>Products</button>
         <span className={styles.breadcrumbSep}>›</span>
         <span className={styles.breadcrumbCurrent}>{product?.Itm_Name || id}</span>
       </nav>

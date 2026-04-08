@@ -8,7 +8,7 @@
   --white:        #ffffff;
   --ink:          #0f1c35;
   --ink-soft:     #3d5278;
-  --ink-muted:    #7a92b4;
+  --ink-muted:   #7a92b4;
   --gold-accent:  #f5a623;
   --red-sale:     #e8394b;
   --shadow-sm:    0 2px 8px rgba(30,79,165,0.10);
@@ -529,3 +529,4 @@ hr.divider {
   height: 130px;
   object-fit: contain;
 }
+
