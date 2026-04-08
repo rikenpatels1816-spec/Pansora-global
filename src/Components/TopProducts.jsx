@@ -130,7 +130,7 @@ export default function TopProducts() {
   }, [])
 
   return (
-    <section className={styles.section}>
+    <section className={styles.section} id='top-selling'>
       <div className={styles.header}>
         <h2 className={styles.sectionTitle}>Our Top Selling Products</h2>
       </div>
