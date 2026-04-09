@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./ContactUs.module.css";
 
 const BASE_URL = "http://192.168.1.131:3000/api/Home";
@@ -8,6 +9,7 @@ export default function ContactUs() {
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
+   const navigate = useNavigate();
 
   function getEmbedUrl(link) {
     if (!link) return null;
@@ -89,7 +91,7 @@ export default function ContactUs() {
           <span>Contact Us</span>
         </h1>
       <nav className={styles.breadcrumb}>
-        <button className={styles.breadcrumbLink}>Home</button>
+        <button className={styles.breadcrumbLink} onClick={() => navigate("/")}>Home</button>
         <span className={styles.breadcrumbSep}>›</span>
         <span className={styles.breadcrumbCurrent}>Contact Us</span>
       </nav>

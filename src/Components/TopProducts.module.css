@@ -19,8 +19,8 @@
   --radius-md:    14px;
   --radius-lg:    24px;
   --radius-pill:  100px;
-  --font-display: 'Playfair Display', Georgia, serif;
-  --font-body:    'DM Sans', system-ui, sans-serif;
+  --font-display: 'Outfit', sans-serif;
+  --font-body:    'Outfit', sans-serif;
   --ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-smooth:  cubic-bezier(0.22, 1, 0.36, 1);
   --transition:   0.22s cubic-bezier(0.22, 1, 0.36, 1);
@@ -60,7 +60,7 @@
   letter-spacing: 0.28em;
   text-transform: uppercase;
   color: var(--blue-sky);
-  font-family: 'Space Mono', monospace;
+  font-family: 'Outfit', sans-serif;
 }
 .sectionTitle {
   font-size: clamp(26px, 3.5vw, 40px);
@@ -137,7 +137,7 @@
   animation-delay: calc(var(--i, 0) * 80ms + 400ms);
 }
 .rankNum {
-  font-family: 'Space Mono', monospace;
+  font-family: 'Outfit', sans-serif;
   font-size: 11px;
   font-weight: 700;
   color: #fff;
@@ -363,7 +363,7 @@
   border-top: 1px solid var(--blue-pale);
 }
 .price {
-  font-family: 'Space Mono', monospace;
+  font-family: 'Outfit', sans-serif;
   font-size: 18px;
   font-weight: 700;
   color: var(--blue-deep);

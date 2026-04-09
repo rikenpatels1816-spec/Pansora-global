@@ -132,7 +132,7 @@ export default function CategoryPage() {
       {/* Header */}
       <header className={styles.header}>
         <h1 className={styles.heading}>
-          <span>{isSubCat ? "Sub Categories" : "All Categories"}</span>
+          <span>{isSubCat ? "Sub Categories" : "Categories"}</span>
         </h1> 
       <nav className={styles.breadcrumb}>
         <button className={styles.breadcrumbLink} onClick={() => navigate("/")}>

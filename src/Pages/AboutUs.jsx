@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./AboutUs.module.css";
 
 const BASE_URL = "http://192.168.1.131:3000/api/Home";
@@ -14,6 +15,7 @@ const sections = [
 export default function AboutUs() {
   const [about, setAbout] = useState(null);
   const [loading, setLoading] = useState(true);
+   const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchAbout() {
@@ -64,7 +66,7 @@ export default function AboutUs() {
           <span>About Us</span>
         </h1>
       <nav className={styles.breadcrumb}>
-        <button className={styles.breadcrumbLink}>Home</button>
+        <button className={styles.breadcrumbLink} onClick={() => navigate("/")}>Home</button>
         <span className={styles.breadcrumbSep}>›</span>
         <span className={styles.breadcrumbCurrent}>About Us</span>
       </nav>
@@ -87,7 +89,6 @@ export default function AboutUs() {
               </div>
               <div className={styles.cardBody}>
                 <div className={styles.cardEyebrow}>
-                  <span className={styles.stepNum}>0{i + 1}</span>
                 </div>
                 <h2 className={styles.cardTitle}>{sec.label}</h2>
                 <p className={styles.cardText}>{text}</p>

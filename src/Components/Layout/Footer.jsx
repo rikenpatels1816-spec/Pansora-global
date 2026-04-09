@@ -59,12 +59,6 @@ export default function Footer({ categories = [], company }) {
 
   return (
     <footer className={styles.footer}>
-      {/* ── Top wave decoration ── */}
-      <div className={styles.waveTop}>
-        <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0,30 C360,60 1080,0 1440,30 L1440,0 L0,0 Z" fill="white" />
-        </svg>
-      </div>
 
       <div className={styles.inner}>
         {/* ── Col 1: Brand ── */}
@@ -191,7 +185,6 @@ export default function Footer({ categories = [], company }) {
         <div className={styles.bottomInner}>
           <span>© {new Date().getFullYear()} Pansora Global. All rights reserved.</span>
           <span className={styles.bottomDivider}>·</span>
-          <span className={styles.bottomSub}>Made with care</span>
         </div>
       </div>
     </footer>

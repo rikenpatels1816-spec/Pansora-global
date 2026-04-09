@@ -18,9 +18,9 @@
   --radius-md:   14px;
   --radius-sm:   8px;
   --radius-pill: 100px;
-  --font-display:'Playfair Display', Georgia, serif;
-  --font-body:   'DM Sans', system-ui, sans-serif;
-  --font-mono:   'Space Mono', monospace;
+  --font-display:'Outfit', sans-serif;
+  --font-body:   'Outfit', sans-serif;
+  --font-mono:   'Outfit', sans-serif;
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -54,7 +54,6 @@
   animation: blobFloat 18s ease-in-out infinite alternate-reverse;
 }
 
-/* ── Breadcrumb ─────────────────────────────────── */
 .breadcrumb {
   display: flex;
   align-items: center;
@@ -64,7 +63,7 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--ink-muted);
+  color: var(--ink);
   margin-bottom: 48px;
   position: relative;
   z-index: 1;
@@ -72,7 +71,7 @@
   animation: fadeIn 0.5s 0.1s var(--ease-smooth) forwards;
 }
 .breadcrumbLink {
-  color: var(--blue-sky);
+  color: var(--blue-mid);
   cursor: pointer;
   background: none;
   border: none;
@@ -83,7 +82,7 @@
   transition: color 0.2s ease;
 }
 .breadcrumbLink:hover { color: var(--blue-deep); }
-.breadcrumbSep { color: rgba(83,188,213,0.4); }
+.breadcrumbSep { color: var(--ink); }
 .breadcrumbCurrent { color: var(--ink-muted); }
 
 /* ── Main layout ────────────────────────────────── */
@@ -150,6 +149,7 @@
   transition:
     opacity 0.25s var(--ease-smooth),
     transform 0.35s var(--ease-spring);
+    border-radius: 15px;
 }
 .mainImage.imageVisible { opacity: 1; transform: scale(1); }
 .mainImage.imageFade    { opacity: 0; transform: scale(0.92); }
@@ -417,7 +417,7 @@
 .specTable thead th {
   padding: 14px 20px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.20em;
   text-transform: uppercase;
@@ -454,8 +454,9 @@
 /* Parameter column */
 .specTable tbody td:first-child {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
+  width: 50%;
   letter-spacing: 0.06em;
   color: var(--blue-dark);
   border-right: 1px solid var(--blue-pale);

@@ -113,7 +113,7 @@ export default function ProductDetails() {
         <span className={styles.breadcrumbSep}>›</span>
         <button className={styles.breadcrumbLink} onClick={() => navigate("/categories")}>Categories</button>
         <span className={styles.breadcrumbSep}>›</span>
-        <button className={styles.breadcrumbLink} onClick={() => navigate("/products")}>Products</button>
+        <button className={styles.breadcrumbLink} onClick={() => navigate(-1)}>Products</button>
         <span className={styles.breadcrumbSep}>›</span>
         <span className={styles.breadcrumbCurrent}>{product?.Itm_Name || id}</span>
       </nav>
@@ -194,7 +194,6 @@ export default function ProductDetails() {
 
           {/* SKU badge */}
           <div className={styles.codeBadge}>
-            <span>SKU</span>
             <span>#{product?.Itm_Code || id}</span>
           </div>
 
@@ -234,8 +233,6 @@ export default function ProductDetails() {
           <table className={styles.specTable}>
             <thead>
               <tr>
-                <th>Parameter</th>
-                <th>Value</th>
               </tr>
             </thead>
             <tbody>

@@ -2,8 +2,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 const MENUS = [
   { label: "Home", href: "/", hot: false },
-  { label: "Top Selling", href: "#top-selling", hot: true },
-  { label: "Products", href: "/products", hot: false },
+  { label: "Top Selling", href: "#top-selling", hot: false },
+  { label: "Categories", href: "/categories", hot: false },
   { label: "About Us", href: "/about", hot: false },
   { label: "Contact Us", href: "/contact", hot: false },
 ];
