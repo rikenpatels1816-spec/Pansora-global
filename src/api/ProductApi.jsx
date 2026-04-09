@@ -1,4 +1,4 @@
-const BASE_URL = "http://103.48.42.115/Pansora_Global_API/api/Home";
+const BASE_URL = "Pansora_Global_API/api/Home";
 
 export async function getCategories() {
   const res = await fetch(`${BASE_URL}/categories`, {
