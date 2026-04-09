@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getProductsBySubCategory } from "../api/ProductApi";
 import styles from "./Products.module.css";
 
-const IMAGE_BASE = "http://192.168.1.131:88/Item_Images/Item/";
+const IMAGE_BASE = "http://103.48.42.115/Pansora_Global/Item_Images/Item/";
 
 /* Truncate to ~50 words */
 function truncateWords(text, wordLimit = 50) {

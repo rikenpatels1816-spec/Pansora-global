@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./AboutUs.module.css";
 
-const BASE_URL = "http://192.168.1.131:3000/api/Home";
+const BASE_URL = "http://103.48.42.115/Pansora_Global_API/api/Home";
 
 const sections = [
   { key: "Description", label: "Who We Are",      icon: "◎", accent: 0 },

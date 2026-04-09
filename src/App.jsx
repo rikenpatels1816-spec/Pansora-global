@@ -7,6 +7,7 @@ import SubCat from './Components/SubCategories'
 import './App.css'
 import './assets/Css/Common.css'
 import TopProducts from './Components/TopProducts'
+import ContactSnippet from './Components/ContactSnippet'
 
 const App = () => {
   return (
@@ -14,6 +15,7 @@ const App = () => {
       <Hero />
       <SubCat />
       <TopProducts />
+      <ContactSnippet />
     </div>
   )
 }

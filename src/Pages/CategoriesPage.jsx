@@ -3,8 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getCategories, getSubCategories } from "../api/ProductApi";
 import styles from "./CategoriesPage.module.css";
 
-const IMAGE_BASE_CAT = "http://192.168.1.131:88/Item_Images/Category/";
-const IMAGE_BASE_SUB = "http://192.168.1.131:88/Item_Images/SubCategory/";
+const IMAGE_BASE_CAT = "http://103.48.42.115/Pansora_Global/Item_Images/Category/";
+const IMAGE_BASE_SUB = "http://103.48.42.115/Pansora_Global/Item_Images/SubCategory/";
 
 /* ── Single item card ───────────────────────────── */
 function ItemCard({ item, index, isSubCat, onClick }) {
@@ -56,7 +56,6 @@ function ItemCard({ item, index, isSubCat, onClick }) {
         {desc && <p className={styles.catDesc}>{desc}</p>}
 
         <div className={styles.catFooter}>
-          <span className={styles.codeTag}>#{code}</span>
           <span className={styles.arrow}>→</span>
         </div>
       </div>

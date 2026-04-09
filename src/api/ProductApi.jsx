@@ -1,4 +1,4 @@
-const BASE_URL = "http://192.168.1.131:3000/api/Home";
+const BASE_URL = "http://103.48.42.115/Pansora_Global_API/api/Home";
 
 export async function getCategories() {
   const res = await fetch(`${BASE_URL}/categories`, {
@@ -55,7 +55,7 @@ export async function getProductById(id) {
 
 export async function getSubCategories(categoryId) {
   const res = await fetch(
-    `http://192.168.1.131:3000/api/Home/GetOnCategory/${categoryId}`,
+    `http://103.48.42.115/Pansora_Global_API/api/Home/GetOnCategory/${categoryId}`,
     {
       method: "GET"
     }

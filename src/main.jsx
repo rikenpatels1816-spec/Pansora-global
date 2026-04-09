@@ -25,7 +25,7 @@ function AppWrapper() {
 
   async function fetchCategories() {
     try {
-      const res = await fetch("http://192.168.1.131:3000/api/Home/categories", {
+      const res = await fetch("http://103.48.42.115/Pansora_Global_API/api/Home/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
@@ -42,7 +42,7 @@ function AppWrapper() {
   async function fetchCompany() {
   try {
     const res = await fetch(
-      "http://192.168.1.131:3000/api/Home/company",
+      "http://103.48.42.115/Pansora_Global_API/api/Home/company",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -79,7 +79,6 @@ function AppWrapper() {
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/about" element={<AboutUs />} />
       </Routes>
-
       <Footer categories={categoriesData} company={companyData} />
     </BrowserRouter>
   );

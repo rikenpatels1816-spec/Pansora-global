@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getSubCategories } from "../api/ProductApi";
 import styles from "./SubCat.module.css";
 
-const IMAGE_BASE = "http://192.168.1.131:88/Item_Images/SubCategory/";
+const IMAGE_BASE = "http://103.48.42.115/Pansora_Global/Item_Images/SubCategory/";
 
 /* ── Single subcategory card ────────────────────── */
 function SubCatCard({ sub, index, onNavigate }) {
@@ -46,7 +46,6 @@ function SubCatCard({ sub, index, onNavigate }) {
         {sub.ISC_Desc && <p className={styles.catDesc}>{sub.ISC_Desc}</p>}
 
         <div className={styles.catFooter}>
-          <span className={styles.codeTag}>#{sub.ISC_Code}</span>
           <span className={styles.arrow}>→</span>
         </div>
       </div>

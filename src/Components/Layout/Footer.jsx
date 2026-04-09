@@ -55,6 +55,7 @@ const socials = [
 
 export default function Footer({ categories = [], company }) {
   const navigate = useNavigate();
+  window.scrollTo(0, 0);
   const safeCompany = company || {};
 
   return (

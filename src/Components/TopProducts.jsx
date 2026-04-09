@@ -11,7 +11,7 @@ function ProductCard({ product, rank }) {
   const [index, setIndex] = useState(0)
   const [animating, setAnimating] = useState(false);
 
-  const IMAGE_BASE = "http://192.168.1.131:88/Item_Images/Item/";
+  const IMAGE_BASE = "http://103.48.42.115/Pansora_Global/Item_Images/Item/";
 
   const images = product?.Item_Images || []
   const hasImages = images.length > 0
