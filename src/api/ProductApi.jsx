@@ -11,7 +11,6 @@ export async function getCategories() {
 
   const data = await res.json();
 
-  // ✅ handle both array & wrapped response
   return Array.isArray(data) ? data : data.data || [];
 }
 

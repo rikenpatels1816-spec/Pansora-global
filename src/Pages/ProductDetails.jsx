@@ -216,7 +216,7 @@ export default function ProductDetails() {
 
           {/* CTA */}
           <div className={styles.ctaGroup}>
-            <button className={styles.ctaBtn}>Get Quote</button>
+            <button className={styles.ctaBtn}>Add to Wish List</button>
             <button className={styles.shareBtn} title="Share">↗</button>
           </div>
         </div>

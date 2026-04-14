@@ -90,7 +90,7 @@ function ProductCard({ product, rank }) {
               console.log("Get Quote clicked");
             }}
           >
-            Get Quote
+            Add to Wish List
           </button>
         </div>
       </div>

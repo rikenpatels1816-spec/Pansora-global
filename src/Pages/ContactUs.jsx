@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./ContactUs.module.css";
+import emailjs from "@emailjs/browser";
 
 const BASE_URL = "https://apis.ganeshinfotech.org/api/Home";
 
@@ -56,9 +57,32 @@ export default function ContactUs() {
   }
 
   function handleSubmit() {
-    if (!form.name || !form.email || !form.message) return;
-    setSubmitted(true);
-  }
+  if (!form.name || !form.email || !form.message) return;
+
+  const templateParams = {
+    name: form.name,
+    email: form.email,
+    message: form.message,
+  };
+
+  emailjs
+    .send(
+      "service_stl6val",   // 🔁 replace
+      "template_22cgse5",  // 🔁 replace
+      templateParams,
+      "tlcmnqeSwV2JDV6vL"    // 🔁 replace
+    )
+    .then(
+      (response) => {
+        console.log("SUCCESS!", response.status, response.text);
+        setSubmitted(true);
+      },
+      (error) => {
+        console.log("FAILED...", error);
+        alert("Failed to send message ❌");
+      }
+    );
+}
 
   if (loading) {
     return (

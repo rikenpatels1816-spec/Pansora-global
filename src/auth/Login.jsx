@@ -1,109 +1,213 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "../assets/Css/Login.css";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
+  const [activeTab, setActiveTab] = useState("login");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [toast, setToast] = useState({ msg: "", show: false });
+  const [loginEmail, setLoginEmail] = useState("");
+  const [registerForm, setRegisterForm] = useState({
+    Cust_Name: "",
+    Cust_Email: "",
+    Cust_Address: "",
+    Cust_Contact: "",
+  });
+
+  const navigate = useNavigate();
+
+  function showToast(msg) {
+    setToast({ msg, show: true });
+    setTimeout(() => setToast({ msg: "", show: false }), 3000);
+  }
 
   async function handleLogin() {
-  if (!email) {
-    setError("Please enter email");
-    return;
+    if (!loginEmail) return showToast("Please enter your email");
+    try {
+      setLoading(true);
+      const res = await fetch(
+        `https://apis.ganeshinfotech.org/api/Customer/GetCustomer?id=${loginEmail}`
+      );
+      const data = await res.json();
+      const user = data?.data?.[0];
+      if (user?.status === 1) {
+        sessionStorage.setItem("user", JSON.stringify(user));
+        navigate("/");
+      } else {
+        showToast("Invalid credentials");
+      }
+    } catch {
+      showToast("Login failed");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+async function handleRegister() {
+  if (
+    !registerForm.Cust_Name ||
+    !registerForm.Cust_Email ||
+    !registerForm.Cust_Contact ||
+    !registerForm.Cust_Address
+  ) {
+    return showToast("Please fill all fields");
   }
 
   try {
     setLoading(true);
-    setError("");
 
-    const res = await fetch(
-      `https://apis.ganeshinfotech.org/api/Customer/GetCustomer?id=${email}`
-    );
+    const payload = {
+  Cust_Name: registerForm.Cust_Name,
+  Cust_Email: registerForm.Cust_Email,
+  Cust_Address: registerForm.Cust_Address,
+  Cust_Contact: registerForm.Cust_Contact,
+};
+
+const res = await fetch(
+  "https://apis.ganeshinfotech.org/api/Customer/CustomerDetails",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload), // ✅ FIXED
+  }
+);
 
     const data = await res.json();
 
-    console.log("Login Response:", data);
+    console.log("Response:", data);
 
-    // ✅ Check status
-    if (data?.status === 1) {
-      // ✅ Store in session
-      sessionStorage.setItem("user", JSON.stringify(data));
-
-      // ✅ Redirect to home
-      window.location.href = "/";
-
+   if (data?.success === true) {
+      showToast("Account created! Please sign in.");
+      setActiveTab("login");
     } else {
-      // ❌ Invalid user
-      setError("Invalid email or user not found");
+      showToast(data?.message || "Registration failed");
     }
 
   } catch (err) {
     console.error(err);
-    setError("Something went wrong");
+    showToast("Something went wrong");
+    console.log("Register Payload:", registerForm);
+console.log("Register Response:", data);
   } finally {
     setLoading(false);
   }
 }
 
+
+
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>Customer Login</h2>
+    <div className="authWrap">
 
-        <input
-          type="email"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={styles.input}
-        />
 
-        {error && <p style={styles.error}>{error}</p>}
+      {/* ── RIGHT FORM PANEL ── */}
+      <div className="authRight">
+        <div className="authFormBox">
+          
 
-        <button onClick={handleLogin} style={styles.button}>
-          {loading ? "Logging in..." : "Login"}
-        </button>
+          {/* TABS */}
+          <div className="authTabRow">
+            <button
+              className={`authTab ${activeTab === "login" ? "authTabActive" : ""}`}
+              onClick={() => setActiveTab("login")}
+            >
+              Sign in
+            </button>
+            <button
+              className={`authTab ${activeTab === "register" ? "authTabActive" : ""}`}
+              onClick={() => setActiveTab("register")}
+            >
+              Create account
+            </button>
+          </div>
+
+          {/* LOGIN PANEL */}
+          {activeTab === "login" && (
+            <div className="authPanel" key="login">
+
+              <div className="authField">
+                <label>Email address</label>
+                <input
+                  type="email"
+                  placeholder="you@example.com"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                />
+              </div>
+
+              <button className="authBtn" onClick={handleLogin} disabled={loading}>
+                {loading ? "Signing in..." : "Sign in →"}
+              </button>
+
+            </div>
+          )}
+
+          {/* REGISTER PANEL */}
+          {activeTab === "register" && (
+            <div className="authPanel" key="register">
+
+              <div className="authFieldRow">
+                <div className="authField">
+                  <label>Full name</label>
+                  <input
+                    type="text"
+                    placeholder="Jane Doe"
+                    value={registerForm.Cust_Name}
+                    onChange={(e) =>
+                      setRegisterForm({ ...registerForm, Cust_Name: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="authField">
+                  <label>Contact</label>
+                  <input
+                    type="tel"
+                    placeholder="+91 ..."
+                    value={registerForm.Cust_Contact}
+                    onChange={(e) =>
+                      setRegisterForm({ ...registerForm, Cust_Contact: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="authField">
+                <label>Email address</label>
+                <input
+                  type="email"
+                  placeholder="you@example.com"
+                  value={registerForm.Cust_Email}
+                  onChange={(e) =>
+                    setRegisterForm({ ...registerForm, Cust_Email: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="authField">
+                <label>Address</label>
+                <textarea
+                  placeholder="Street, City, State..."
+                  value={registerForm.Cust_Address}
+                  onChange={(e) =>
+                    setRegisterForm({ ...registerForm, Cust_Address: e.target.value })
+                  }
+                />
+              </div>
+
+              <button className="authBtn" onClick={handleRegister} disabled={loading}>
+                {loading ? "Creating account..." : "Create account →"}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* TOAST */}
+        <div className={`authToast ${toast.show ? "authToastShow" : ""}`}>
+          {toast.msg}
+        </div>
       </div>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    height: "80vh",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    background: "#f5f7fb",
-  },
-  card: {
-    background: "#fff",
-    padding: "30px",
-    borderRadius: "12px",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
-    width: "320px",
-    textAlign: "center",
-  },
-  title: {
-    marginBottom: "20px",
-  },
-  input: {
-    width: "100%",
-    padding: "10px",
-    marginBottom: "15px",
-    borderRadius: "6px",
-    border: "1px solid #ddd",
-  },
-  button: {
-    width: "100%",
-    padding: "10px",
-    background: "#1E4FA5",
-    color: "#fff",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-  },
-  error: {
-    color: "red",
-    fontSize: "13px",
-  },
-};
