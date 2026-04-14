@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./AllProducts.module.css";
 
-const BASE_URL   = "http://103.48.42.115/Pansora_Global_API/api/Home";
+const BASE_URL   = "https://apis.ganeshinfotech.org/api/Home";
 const IMAGE_BASE = "http://103.48.42.115/Pansora_Global/Item_Images/Item/";
 
 /* Truncate to N words */

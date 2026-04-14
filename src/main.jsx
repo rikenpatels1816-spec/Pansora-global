@@ -25,7 +25,7 @@ function AppWrapper() {
 
   async function fetchCategories() {
     try {
-      const res = await fetch("http://103.48.42.115/Pansora_Global_API/api/Home/categories", {
+      const res = await fetch("https://apis.ganeshinfotech.org/api/Home/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
@@ -42,7 +42,7 @@ function AppWrapper() {
   async function fetchCompany() {
   try {
     const res = await fetch(
-      "http://103.48.42.115/Pansora_Global_API/api/Home/company",
+      "https://apis.ganeshinfotech.org/api/Home/company",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

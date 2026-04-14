@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./ContactUs.module.css";
 
-const BASE_URL = "http://103.48.42.115/Pansora_Global_API/api/Home";
+const BASE_URL = "https://apis.ganeshinfotech.org/api/Home";
 
 export default function ContactUs() {
   const [company, setCompany] = useState(null);

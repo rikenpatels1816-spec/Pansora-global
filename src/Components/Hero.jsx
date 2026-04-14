@@ -4,7 +4,7 @@ import '../assets/Css/Common.css'
 // ── replace with your real API import ──
 // import { getProducts } from '../api/ProductApi'
 async function getProducts() {
-  const res = await fetch('http://103.48.42.115/Pansora_Global_API/api/Home/categories')
+  const res = await fetch('https://apis.ganeshinfotech.org/api/Home/categories')
   return res.json()
 }
 
