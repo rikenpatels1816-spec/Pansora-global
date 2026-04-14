@@ -13,6 +13,7 @@ import AllProducts from "./Pages/AllProducts";
 import ContactUs from "./Pages/ContactUs";
 import AboutUs from "./Pages/AboutUs";
 import Footer from "./Components/Layout/Footer";
+import Login from "./auth/Login";
 
 function AppWrapper() {
   const [categoriesData, setCategoriesData] = useState([]);
@@ -77,6 +78,7 @@ function AppWrapper() {
         <Route path="/products" element={<AllProducts />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/about" element={<AboutUs />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
       <Footer categories={categoriesData} company={companyData} />
     </BrowserRouter>

@@ -136,6 +136,115 @@ img    { display: block; max-width: 100%; }
   border: 2px solid white;
 }
 
+/* ── TABLET (≤ 1024px) ── */
+@media (max-width: 1024px) {
+  .header .inner {
+    padding: 0 24px;
+    gap: 16px;
+  }
+
+  .searchWrap {
+    max-width: 340px;
+  }
+}
+
+/* ── MOBILE (≤ 640px) ── */
+@media (max-width: 640px) {
+  .header .inner {
+    padding: 0 16px;
+    height: 56px;
+    gap: 10px;
+  }
+
+  .logoMark img,
+  .logoMark .logo {
+    height: 48px;
+  }
+
+  /* Hide search bar by default; show as a dropdown when toggled */
+  .searchWrap {
+    display: none;
+    position: absolute;
+    top: 56px;         /* matches header height */
+    left: 0;
+    right: 0;
+    max-width: 100%;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    border-bottom: 2px solid var(--blue-sky);
+    background: var(--white);
+    height: 48px;
+    padding: 0 16px;
+    box-shadow: var(--shadow-sm);
+    z-index: 100;
+  }
+
+  .searchWrap.searchVisible {
+    display: flex;
+  }
+
+  /* Search toggle button — hidden on larger screens */
+  .searchToggleBtn {
+    display: flex;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    background: var(--blue-pale);
+    color: var(--blue-deep);
+    flex-shrink: 0;
+  }
+
+  .actions {
+    margin-left: auto;
+  }
+}
+
+/* Hide search toggle on tablet+ */
+@media (min-width: 641px) {
+  .searchToggleBtn {
+    display: none;
+  }
+}
+
+/* Login / Sign up button */
+.authBtn {
+  height: 38px;
+  padding: 0 18px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--blue-deep);
+  color: var(--blue-deep);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+}
+
+.authBtn:hover {
+  background: var(--blue-deep);
+  color: var(--white);
+}
+
+/* Show short label on mobile, full label on tablet+ */
+.authBtnShort { display: none; }
+.authBtnFull  { display: inline; }
+
+@media (max-width: 640px) {
+  .authBtn {
+    padding: 0 14px;
+    font-size: 13px;
+    height: 36px;
+  }
+
+  .authBtnFull  { display: none; }
+  .authBtnShort { display: inline; }
+}
+
 .nav {
   background: var(--blue-deep);
   position: sticky; 

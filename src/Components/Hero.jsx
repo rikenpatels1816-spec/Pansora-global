@@ -1,28 +1,22 @@
 import { useEffect, useState } from 'react'
 import '../assets/Css/Common.css'
-
-// ── replace with your real API import ──
-// import { getProducts } from '../api/ProductApi'
-async function getProducts() {
-  const res = await fetch('https://apis.ganeshinfotech.org/api/Home/categories')
-  return res.json()
-}
+import { getTopSelling } from '../api/ProductApi'
 
 export default function Hero() {
   const [products, setProducts] = useState([])
   const [current, setCurrent]   = useState(0)
   const [animating, setAnimating] = useState(false)
+  const IMAGE_BASE = "https://pansoraglobal.ganeshinfotech.org/Item_Images/Item/";
 
   // Fetch products
   useEffect(() => {
     async function fetchData() {
-      const data = await getProducts()
+      const data = await getTopSelling()
       setProducts(data.slice(0, 5))
     }
     fetchData()
   }, [])
 
-  // Animated slide transition helper
   const goTo = (idx) => {
     if (animating || idx === current) return
     setAnimating(true)
@@ -30,7 +24,6 @@ export default function Hero() {
     setTimeout(() => setAnimating(false), 500)
   }
 
-  // Auto slider
   useEffect(() => {
     if (products.length === 0) return
     const id = setInterval(() => {
@@ -68,44 +61,35 @@ export default function Hero() {
   return (
     <section className="hero">
 
-      {/* LEFT CONTENT */}
       <div className="content">
         <div className="textBlock" key={current}>
 
           <span className="eyebrow">
-            {product.category}
+            #{product.Itm_Code}
           </span>
 
           <h1 className="title">
-            {product.title.length > 50
-              ? product.title.substring(0, 50) + '…'
-              : product.title}
+            {product.Itm_Name.length > 50
+              ? product.Itm_Name.substring(0, 50) + '…'
+              : product.Itm_Name}
           </h1>
-
           <p className="subtitle">
-            {product.description.substring(0, 120)}…
+            {(product.Itm_Desc || "Premium quality product from Pansora Global")
+              .substring(0, 120)}…
           </p>
 
           <div className="ctaRow">
-            <button className="ctaPrimary">
-              ₹ {(product.price * 83).toFixed(0)}
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" strokeWidth="2.5">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
-              </svg>
-            </button>
             <button className="ctaSecondary">
-              Buy Now
+              Get Quote
             </button>
           </div>
 
         </div>
 
-        {/* RIGHT IMAGE */}
         <div className="heroImageWrap">
           <img
-            src={product.image}
-            alt={product.title}
+            src={IMAGE_BASE + product.Item_Images[1]}
+            alt={product.Itm_Name}
             className="heroImage"
           />
         </div>
@@ -123,7 +107,6 @@ export default function Hero() {
         ))}
       </div>
 
-      {/* Prev / Next arrows */}
       <button
         onClick={() => goTo((current - 1 + products.length) % products.length)}
         style={arrowStyle('left')}

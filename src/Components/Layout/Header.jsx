@@ -1,23 +1,25 @@
 import { useState } from 'react'
 import logo from '../../assets/Images/logo2.png'
+import { useNavigate } from "react-router-dom";
+
 
 export default function Header() {
   const [searchVal, setSearchVal] = useState('')
   const [focused, setFocused] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const navigate = useNavigate();
 
   return (
-    <header className="header">
+    <header className="header" style={{ position: 'relative' }}>
       <div className="inner">
 
-        {/* Logo */}
         <div className="logo">
           <div className="logoMark">
             <img src={logo} className='logo' />
           </div>
         </div>
 
-        {/* Search */}
-        <div className={`searchWrap ${focused ? 'searchFocused' : ''}`}>
+        <div className={`searchWrap ${focused ? 'searchFocused' : ''} ${searchOpen ? 'searchVisible' : ''}`}>
           <svg className="searchIcon" width="18" height="18" viewBox="0 0 24 24"
             fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="11" cy="11" r="8"/>
@@ -37,8 +39,28 @@ export default function Header() {
           )}
         </div>
 
-        {/* Actions */}
         <div className="actions">
+
+          {/* Mobile search toggle */}
+          <button
+            className="searchToggleBtn"
+            onClick={() => setSearchOpen(o => !o)}
+            title="Search"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+          </button>
+
+          {/* Login / Signup */}
+          <button className="authBtn" onClick={() => navigate("/login")}>
+            <span className="authBtnFull">Login / Sign up</span>
+            <span className="authBtnShort">Login</span>
+          </button>
+
+          {/* Cart */}
           <button className="cartBtn" title="Cart">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" strokeWidth="1.8">
@@ -48,8 +70,8 @@ export default function Header() {
             </svg>
             <span className="cartBadge">0</span>
           </button>
-        </div>
 
+        </div>
       </div>
     </header>
   )
