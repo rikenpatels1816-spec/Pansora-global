@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getCategories } from "../api/ProductApi";
 import { useNavigate } from "react-router-dom";
 
-const IMAGE_BASE = "http://103.48.42.115/Pansora_Global/Item_Images/Category/";
+const IMAGE_BASE = "https://pansoraglobal.ganeshinfotech.org/Item_Images/Category/";
 
 const bgColors = [
   "#fff9f0","#f0f7ff","#f0fff7","#fffbf0",

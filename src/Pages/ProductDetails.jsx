@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import styles from "./ProductDetails.module.css";
 import { getProductById } from "../api/ProductApi";
 
-const IMAGE_BASE = "http://103.48.42.115/Pansora_Global/Item_Images/Item/";
+const IMAGE_BASE = "https://pansoraglobal.ganeshinfotech.org/Item_Images/Item/";
 
 /* ── Loading skeleton ───────────────────────────── */
 function LoadingSkeleton() {

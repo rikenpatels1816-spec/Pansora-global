@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getSubCategories } from "../api/ProductApi";
 import styles from "./SubCat.module.css";
 
-const IMAGE_BASE = "http://103.48.42.115/Pansora_Global/Item_Images/SubCategory/";
+const IMAGE_BASE = "https://pansoraglobal.ganeshinfotech.org/Item_Images/SubCategory/";
 
 /* ── Single subcategory card ────────────────────── */
 function SubCatCard({ sub, index, onNavigate }) {

@@ -54,7 +54,6 @@ function AppWrapper() {
 
     console.log("Company API RAW:", data);
 
-    // ✅ Extract correctly
     const comp = data?.data?.[0] || {};
 
     setCompanyData(comp);

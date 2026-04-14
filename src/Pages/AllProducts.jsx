@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "./AllProducts.module.css";
 
 const BASE_URL   = "https://apis.ganeshinfotech.org/api/Home";
-const IMAGE_BASE = "http://103.48.42.115/Pansora_Global/Item_Images/Item/";
+const IMAGE_BASE = "https://pansoraglobal.ganeshinfotech.org/Item_Images/Item/";
 
 /* Truncate to N words */
 function truncate(text, wordLimit = 18) {
