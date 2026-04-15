@@ -25,7 +25,20 @@ export default function Navbar() {
                   className={`menuBtn ${
                     isActive ? "active" : ""
                   } ${item.hot ? "sale" : ""}`}
-                  onClick={() => navigate(item.href)}
+                  onClick={() => {
+  if (item.href.startsWith("#")) {
+    // If already on home
+    if (location.pathname === "/") {
+      const el = document.querySelector(item.href);
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    } else {
+      // Navigate to home first, then scroll
+      navigate("/", { state: { scrollTo: item.href } });
+    }
+  } else {
+    navigate(item.href);
+  }
+}}
                 >
                   {item.label}
 

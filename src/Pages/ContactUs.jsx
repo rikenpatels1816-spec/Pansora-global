@@ -67,10 +67,10 @@ export default function ContactUs() {
 
   emailjs
     .send(
-      "service_stl6val",   // 🔁 replace
-      "template_22cgse5",  // 🔁 replace
+      "service_vv9r9q3",   
+      "template_raquwae",  
       templateParams,
-      "tlcmnqeSwV2JDV6vL"    // 🔁 replace
+      "09nWHi2weMuj-prpZ"
     )
     .then(
       (response) => {

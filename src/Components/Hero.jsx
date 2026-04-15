@@ -80,7 +80,7 @@ export default function Hero() {
 
           <div className="ctaRow">
             <button className="ctaSecondary">
-              Get Quote
+              Add to Wish List
             </button>
           </div>
 

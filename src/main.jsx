@@ -20,6 +20,7 @@ import AboutUs from "./Pages/AboutUs";
 import Footer from "./Components/Layout/Footer";
 import Login from "./auth/Login";
 import Profile from "./auth/Profile";
+import Wishlist from "./Pages/Wishlist";
 
 function AppContent({ categoriesData, companyData }) {
   const location = useLocation();
@@ -43,6 +44,7 @@ function AppContent({ categoriesData, companyData }) {
         <Route path="/about" element={<AboutUs />} />
         <Route path="/login" element={<Login />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/wishlist" element={<Wishlist />} />
       </Routes>
 
       {!hideLayout && (

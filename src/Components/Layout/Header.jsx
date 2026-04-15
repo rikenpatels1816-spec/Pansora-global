@@ -7,6 +7,7 @@ export default function Header() {
   const [searchVal, setSearchVal] = useState('')
   const [focused, setFocused] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const [wishlistCount, setWishlistCount] = useState(0);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef();
 
@@ -23,6 +24,42 @@ export default function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+async function fetchWishlistCount() {
+  const user = JSON.parse(sessionStorage.getItem("user"));
+
+  if (!user || !user.Cust_Code) return;
+
+  try {
+    const res = await fetch(
+      `https://apis.ganeshinfotech.org/api/wishlist/GetWishlist/${user.Cust_Code}`
+    );
+
+    const data = await res.json();
+
+    console.log("Wishlist Count Response:", data);
+
+    // adjust based on API response
+    const list = data?.data || [];
+
+    setWishlistCount(list.length);
+
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+
+useEffect(() => {
+  function handleUpdate() {
+    fetchWishlistCount();
+  }
+
+  window.addEventListener("wishlistUpdated", handleUpdate);
+
+  return () =>
+    window.removeEventListener("wishlistUpdated", handleUpdate);
+}, []);
 
   return (
     <header className="header" style={{ position: 'relative' }}>
@@ -122,14 +159,16 @@ export default function Header() {
           )}
 
           {/* Cart */}
-          <button className="cartBtn" title="Cart">
+          <button className="cartBtn" title="Wish List" onClick={() => navigate("/wishlist")}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" strokeWidth="1.8">
               <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
               <line x1="3" y1="6" x2="21" y2="6" />
               <path d="M16 10a4 4 0 0 1-8 0" />
             </svg>
-            <span className="cartBadge">0</span>
+            <span className="cartBadge">
+              {wishlistCount}
+            </span>
           </button>
 
         </div>

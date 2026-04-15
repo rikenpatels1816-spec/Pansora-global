@@ -15,49 +15,94 @@ function LoadingSkeleton() {
           <div className={styles.skeletonLine} style={{ width: "30%", height: 10 }} />
           <div className={styles.skeletonLine} style={{ width: "80%", height: 32, marginBottom: 8 }} />
           <div className={styles.skeletonLine} style={{ width: "100%", height: 12 }} />
-          <div className={styles.skeletonLine} style={{ width: "90%",  height: 12 }} />
-          <div className={styles.skeletonLine} style={{ width: "70%",  height: 12 }} />
-          <div className={styles.skeletonLine} style={{ width: 140,    height: 48, borderRadius: 100, marginTop: 12 }} />
+          <div className={styles.skeletonLine} style={{ width: "90%", height: 12 }} />
+          <div className={styles.skeletonLine} style={{ width: "70%", height: 12 }} />
+          <div className={styles.skeletonLine} style={{ width: 140, height: 48, borderRadius: 100, marginTop: 12 }} />
         </div>
       </div>
     </div>
   );
 }
 
-export default function ProductDetails() {
-  const { id }     = useParams();
-  const navigate   = useNavigate();
 
-  const [product,   setProduct]   = useState(null);
-  const [index,     setIndex]     = useState(0);
+export default function ProductDetails() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [product, setProduct] = useState(null);
+  const [index, setIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
-  const [loading,   setLoading]   = useState(true);
-  const [error,     setError]     = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [adding, setAdding] = useState(false);
 
-  /* ── Fetch ── */
-  useEffect(() => {
-  if (!id) return;
+  async function handleWishList() {
+    if (adding) return;
 
-  async function fetchProduct() {
+    const user = JSON.parse(sessionStorage.getItem("user"));
+
+    if (!user || !user.Cust_Code) {
+      navigate("/login");
+      return;
+    }
+
     try {
-      setLoading(true);
-      const data = await getProductById(id);
-      setProduct(data);
+      setAdding(true);
+
+      const res = await fetch(
+        `https://apis.ganeshinfotech.org/api/wishlist/AddToWishList`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            Cust_Code: user.Cust_Code,
+            Itm_Code: product?.Itm_Code,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (data?.success) {
+        alert("Added to wishlist");
+        window.dispatchEvent(new Event("wishlistUpdated"));
+      } else {
+        alert(data?.message || "Already added");
+      }
+
     } catch (err) {
       console.error(err);
-      setError("Failed to fetch product");
+      alert("Error adding wishlist");
     } finally {
-      setLoading(false);
+      setAdding(false);
     }
   }
+  /* ── Fetch ── */
+  useEffect(() => {
+    if (!id) return;
 
-  fetchProduct();
-}, [id]);
+    async function fetchProduct() {
+      try {
+        setLoading(true);
+        const data = await getProductById(id);
+        setProduct(data);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to fetch product");
+      } finally {
+        setLoading(false);
+      }
+    }
 
-  const images    = Array.isArray(product?.Item_Images) ? product.Item_Images : [];
+    fetchProduct();
+  }, [id]);
+
+  const images = Array.isArray(product?.Item_Images) ? product.Item_Images : [];
   const hasImages = images.length > 0;
-  const hasMulti  = images.length > 1;
+  const hasMulti = images.length > 1;
 
   const changeSlide = useCallback(
     (nextIndex) => {
@@ -133,9 +178,8 @@ export default function ProductDetails() {
                 key={index}
                 src={currentImage}
                 alt={product.Itm_Name}
-                className={`${styles.mainImage} ${
-                  animating ? styles.imageFade : styles.imageVisible
-                }`}
+                className={`${styles.mainImage} ${animating ? styles.imageFade : styles.imageVisible
+                  }`}
                 onLoad={() => setImgLoaded(true)}
                 onError={() => setImgLoaded(true)}
               />
@@ -146,7 +190,7 @@ export default function ProductDetails() {
                 color: "var(--ink-muted)", fontFamily: "var(--font-mono)", fontSize: 12
               }}>
                 <span style={{ fontSize: 36, opacity: 0.4 }}>⊟</span>
-                <span style={{color: "var(--ink)"}}>No Image</span>
+                <span style={{ color: "var(--ink)" }}>No Image</span>
               </div>
             )}
 
@@ -214,10 +258,10 @@ export default function ProductDetails() {
 
           <hr className={styles.divider} />
 
-          {/* CTA */}
           <div className={styles.ctaGroup}>
-            <button className={styles.ctaBtn}>Add to Wish List</button>
-            <button className={styles.shareBtn} title="Share">↗</button>
+            <button className={styles.ctaBtn} onClick={handleWishList}>
+              {adding ? "Adding..." : "Add to Wish List "}
+            </button>
           </div>
         </div>
       </div>

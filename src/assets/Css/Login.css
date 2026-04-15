@@ -397,7 +397,7 @@ color: var(--ink-muted) !important;
 /* TOAST */
 .authToast {
   position: absolute;
-  bottom: 24px;
+  top: 24px;
   left: 50%;
   transform: translateX(-50%) translateY(14px);
   background: var(--ink);
