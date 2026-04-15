@@ -4,9 +4,12 @@ import { getTopSelling } from '../api/ProductApi'
 
 export default function Hero() {
   const [products, setProducts] = useState([])
-  const [current, setCurrent]   = useState(0)
+  const [current, setCurrent] = useState(0)
   const [animating, setAnimating] = useState(false)
-  const IMAGE_BASE = "https://pansoraglobal.ganeshinfotech.org/Item_Images/Item/";
+  const [adding, setAdding] = useState(false)
+  const [added, setAdded] = useState(false)
+
+  const IMAGE_BASE = "https://pansoraglobal.ganeshinfotech.org/Item_Images/Item/"
 
   // Fetch products
   useEffect(() => {
@@ -17,13 +20,7 @@ export default function Hero() {
     fetchData()
   }, [])
 
-  const goTo = (idx) => {
-    if (animating || idx === current) return
-    setAnimating(true)
-    setCurrent(idx)
-    setTimeout(() => setAnimating(false), 500)
-  }
-
+  // Auto slide
   useEffect(() => {
     if (products.length === 0) return
     const id = setInterval(() => {
@@ -32,31 +29,96 @@ export default function Hero() {
     return () => clearInterval(id)
   }, [products])
 
+  // 🔥 FIX: reset added when slide changes
+  useEffect(() => {
+    setAdded(false)
+  }, [current])
+
+  const goTo = (idx) => {
+    if (animating || idx === current) return
+    setAnimating(true)
+    setCurrent(idx)
+    setTimeout(() => setAnimating(false), 500)
+  }
+
   if (products.length === 0) {
     return (
       <div style={{
-        minHeight:'60vh', display:'flex', alignItems:'center',
-        justifyContent:'center',
-        background:'linear-gradient(135deg,#163a7c,#1E4FA5)'
+        minHeight: '60vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg,#163a7c,#1E4FA5)'
       }}>
-        <div style={{textAlign:'center'}}>
+        <div style={{ textAlign: 'center' }}>
           <div style={{
-            width:48,height:48,borderRadius:'50%',
-            border:'3px solid rgba(83,188,213,0.3)',
-            borderTop:'3px solid #53BCD5',
-            animation:'spin 0.8s linear infinite',
-            margin:'0 auto 16px'
-          }}/>
-          <p style={{color:'rgba(255,255,255,0.6)',fontSize:14,letterSpacing:1}}>
+            width: 48, height: 48, borderRadius: '50%',
+            border: '3px solid rgba(83,188,213,0.3)',
+            borderTop: '3px solid #53BCD5',
+            animation: 'spin 0.8s linear infinite',
+            margin: '0 auto 16px'
+          }} />
+          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14 }}>
             Loading Products…
           </p>
         </div>
-        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>
     )
   }
 
   const product = products[current]
+
+  // 🔥 Wishlist Function
+  async function handleWishList() {
+    if (adding || added) return
+
+    const user = JSON.parse(sessionStorage.getItem("user"))
+
+    if (!user || !user.Cust_Code) {
+      window.location.href = "/login"
+      return
+    }
+
+    try {
+      setAdding(true)
+
+      const res = await fetch(
+        `https://apis.ganeshinfotech.org/api/wishlist/AddToWishList`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            Cust_Code: user.Cust_Code,
+            Itm_Code: product?.Itm_Code,
+          }),
+        }
+      )
+
+      const data = await res.json()
+
+      if (data?.success) {
+        alert("Added to wishlist");
+        setAdded(true)
+        window.dispatchEvent(new Event("wishlistUpdated"))
+
+      } else {
+        alert(data?.message || "Already added")
+        setAdded(true)
+      }
+
+    } catch (err) {
+      console.error(err)
+      alert("Error adding wishlist")
+    } finally {
+      setAdding(false)
+    }
+  }
+
+  // Safe image
+  const heroImage =
+    product.Item_Images?.[1] || product.Item_Images?.[0]
 
   return (
     <section className="hero">
@@ -73,14 +135,18 @@ export default function Hero() {
               ? product.Itm_Name.substring(0, 50) + '…'
               : product.Itm_Name}
           </h1>
+
           <p className="subtitle">
             {(product.Itm_Desc || "Premium quality product from Pansora Global")
               .substring(0, 120)}…
           </p>
 
           <div className="ctaRow">
-            <button className="ctaSecondary">
-              Add to Wish List
+            <button
+              className="ctaSecondary"
+              onClick={handleWishList}
+            >
+              { adding ? "Adding..." : "Add to Wish List"}
             </button>
           </div>
 
@@ -88,7 +154,7 @@ export default function Hero() {
 
         <div className="heroImageWrap">
           <img
-            src={IMAGE_BASE + product.Item_Images[1]}
+            src={IMAGE_BASE + heroImage}
             alt={product.Itm_Name}
             className="heroImage"
           />
@@ -102,45 +168,39 @@ export default function Hero() {
             key={i}
             className={`dot ${i === current ? 'dotActive' : ''}`}
             onClick={() => goTo(i)}
-            aria-label={`Slide ${i + 1}`}
           />
         ))}
       </div>
 
+      {/* ARROWS */}
       <button
         onClick={() => goTo((current - 1 + products.length) % products.length)}
         style={arrowStyle('left')}
-        aria-label="Previous"
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" strokeWidth="2">
-          <path d="M15 18l-6-6 6-6"/>
-        </svg>
+        ‹
       </button>
+
       <button
         onClick={() => goTo((current + 1) % products.length)}
         style={arrowStyle('right')}
-        aria-label="Next"
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" strokeWidth="2">
-          <path d="M9 18l6-6-6-6"/>
-        </svg>
+        ›
       </button>
 
-      {/* Slide counter */}
+      {/* COUNTER */}
       <div style={{
-        position:'absolute', bottom:36, right:40, zIndex:20,
-        fontFamily:"'Playfair Display',serif",
-        display:'flex', alignItems:'baseline', gap:4
+        position: 'absolute',
+        bottom: 36,
+        right: 40,
+        zIndex: 20,
+        display: 'flex',
+        gap: 4
       }}>
-        <span style={{fontSize:28,fontWeight:700,color:'#53BCD5'}}>
-          0{current+1}
+        <span style={{ fontSize: 28, color: '#53BCD5' }}>
+          0{current + 1}
         </span>
-        <span style={{fontSize:15,color:'rgba(255,255,255,0.25)'}}>/</span>
-        <span style={{fontSize:13,color:'rgba(255,255,255,0.35)'}}>
-          0{products.length}
-        </span>
+        <span>/</span>
+        <span>0{products.length}</span>
       </div>
 
     </section>
@@ -149,16 +209,13 @@ export default function Hero() {
 
 function arrowStyle(side) {
   return {
-    position:'absolute',
-    top:'50%', transform:'translateY(-50%)',
+    position: 'absolute',
+    top: '50%',
+    transform: 'translateY(-50%)',
     [side]: 20,
-    zIndex:20,
-    width:44, height:44, borderRadius:'50%',
-    border:'1.5px solid rgba(83,188,213,0.30)',
-    background:'rgba(83,188,213,0.08)',
-    color:'rgba(255,255,255,0.7)',
-    display:'flex', alignItems:'center', justifyContent:'center',
-    cursor:'pointer',
-    transition:'all 0.2s',
+    width: 44,
+    height: 44,
+    borderRadius: '50%',
+    cursor: 'pointer'
   }
 }

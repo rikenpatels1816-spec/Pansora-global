@@ -4,35 +4,84 @@ import { getTopSelling } from '../api/ProductApi'
 import { useNavigate } from "react-router-dom";
 
 function ProductCard({ product, rank }) {
-  const navigate = useNavigate(); // ✅ ADD THIS
+  const navigate = useNavigate();
 
   const [imgLoaded, setImgLoaded] = useState(false)
   const [hovered, setHovered] = useState(false)
   const [index, setIndex] = useState(0)
-  const [animating, setAnimating] = useState(false);
+  const [animating, setAnimating] = useState(false)
+  const [adding, setAdding] = useState(false)   // ✅ FIXED
+  const [added, setAdded] = useState(false)     // ✅ USED
 
-  const IMAGE_BASE = "https://pansoraglobal.ganeshinfotech.org/Item_Images/Item/";
+  const IMAGE_BASE = "https://pansoraglobal.ganeshinfotech.org/Item_Images/Item/"
 
   const images = product?.Item_Images || []
   const hasImages = images.length > 0
 
   const next = (e) => {
-    e.stopPropagation(); // ✅ prevent navigation
-    setAnimating(true);
+    e.stopPropagation()
+    setAnimating(true)
     setTimeout(() => {
-      setIndex((prev) => (prev + 1) % images.length);
-      setAnimating(false);
-    }, 200);
-  };
+      setIndex((prev) => (prev + 1) % images.length)
+      setAnimating(false)
+    }, 200)
+  }
 
   const prev = (e) => {
-    e.stopPropagation(); // ✅ prevent navigation
-    setAnimating(true);
+    e.stopPropagation()
+    setAnimating(true)
     setTimeout(() => {
-      setIndex((prev) => (prev - 1 + images.length) % images.length);
-      setAnimating(false);
-    }, 200);
-  };
+      setIndex((prev) => (prev - 1 + images.length) % images.length)
+      setAnimating(false)
+    }, 200)
+  }
+
+  async function handleWishList() {
+    if (adding || added) return;
+
+    const user = JSON.parse(sessionStorage.getItem("user"))
+
+    if (!user || !user.Cust_Code) {
+      navigate("/login")
+      return
+    }
+
+    try {
+      setAdding(true)
+
+      const res = await fetch(
+        `https://apis.ganeshinfotech.org/api/wishlist/AddToWishList`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            Cust_Code: user.Cust_Code,
+            Itm_Code: product?.Itm_Code,
+          }),
+        }
+      )
+
+      const data = await res.json()
+
+      if (data?.success) {
+        alert("Added to wishlist");
+        setAdded(true)
+        window.dispatchEvent(new Event("wishlistUpdated"))
+
+      } else {
+        alert(data?.message || "Already added")
+        setAdded(true)
+      }
+
+    } catch (err) {
+      console.error(err)
+      alert("Error adding wishlist")
+    } finally {
+      setAdding(false)
+    }
+  }
 
   const currentImage = hasImages
     ? IMAGE_BASE + images[index]
@@ -43,7 +92,6 @@ function ProductCard({ product, rank }) {
       className={`${styles.card} ${hovered ? styles.cardHovered : ''}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-
       onClick={() => navigate(`/productdetails/${product.Itm_Code}`)}
       style={{ cursor: "pointer" }}
     >
@@ -59,6 +107,7 @@ function ProductCard({ product, rank }) {
         <img
           src={currentImage}
           alt={product.Itm_Name}
+          onLoad={() => setImgLoaded(true)} // ✅ FIXED
           className={`${styles.image} 
             ${animating ? styles.imageSlide : styles.imageActive}`}
         />
@@ -86,11 +135,11 @@ function ProductCard({ product, rank }) {
           <button
             className={styles.addBtn}
             onClick={(e) => {
-              e.stopPropagation(); // ✅ prevent navigation
-              console.log("Get Quote clicked");
+              e.stopPropagation()
+              handleWishList()
             }}
           >
-            Add to Wish List
+            {adding ? "Adding..." : "Add to Wish List"}
           </button>
         </div>
       </div>
@@ -120,7 +169,7 @@ export default function TopProducts() {
     getTopSelling()
       .then(data => {
         const list = Array.isArray(data) ? data : []
-        setProducts(list.slice(0, 8)) // no rating sort now
+        setProducts(list.slice(0, 8))
         setLoading(false)
       })
       .catch(err => {
