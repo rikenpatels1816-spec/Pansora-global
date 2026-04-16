@@ -36,50 +36,86 @@ function ProductCard({ product, rank }) {
     }, 200)
   }
 
-  async function handleWishList() {
-    if (adding || added) return;
+  useEffect(() => {
+  const user = JSON.parse(sessionStorage.getItem("user"));
+  if (!user) return;
 
-    const user = JSON.parse(sessionStorage.getItem("user"))
+  fetch(`https://apis.ganeshinfotech.org/api/wishlist/GetWishlist/${user.Cust_Code}`)
+    .then(res => res.json())
+    .then(data => {
+      const exists = data?.data?.some(
+        item => item.Itm_Code === product.Itm_Code
+      );
+      setAdded(exists);
+    })
+    .catch(() => {});
+}, [product.Itm_Code]);
+
+  async function handleWishList() {
+    if (adding) return;
+
+    const user = JSON.parse(sessionStorage.getItem("user"));
 
     if (!user || !user.Cust_Code) {
-      navigate("/login")
-      return
+      navigate("/login");
+      return;
     }
 
     try {
-      setAdding(true)
+      setAdding(true);
 
-      const res = await fetch(
-        `https://apis.ganeshinfotech.org/api/wishlist/AddToWishList`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            Cust_Code: user.Cust_Code,
-            Itm_Code: product?.Itm_Code,
-          }),
+      if (added) {
+        const res = await fetch(
+          `https://apis.ganeshinfotech.org/api/wishlist/RemoveWishList`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              Cust_Code: user.Cust_Code,
+              Itm_Code: product?.Itm_Code,
+            }),
+          }
+        );
+
+        const data = await res.json();
+
+        if (data?.success) {
+          setAdded(false);
+          window.dispatchEvent(new Event("wishlistUpdated"));
         }
-      )
-
-      const data = await res.json()
-
-      if (data?.success) {
-        alert("Added to wishlist");
-        setAdded(true)
-        window.dispatchEvent(new Event("wishlistUpdated"))
 
       } else {
-        alert(data?.message || "Already added")
-        setAdded(true)
+        // 🤍 ADD TO WISHLIST
+        const res = await fetch(
+          `https://apis.ganeshinfotech.org/api/wishlist/AddToWishList`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              Cust_Code: user.Cust_Code,
+              Itm_Code: product?.Itm_Code,
+            }),
+          }
+        );
+
+        const data = await res.json();
+
+        if (data?.success) {
+          setAdded(true);
+          window.dispatchEvent(new Event("wishlistUpdated"));
+        } else {
+          setAdded(true); // already exists case
+        }
       }
 
     } catch (err) {
-      console.error(err)
-      alert("Error adding wishlist")
+      console.error(err);
     } finally {
-      setAdding(false)
+      setAdding(false);
     }
   }
 
@@ -133,13 +169,26 @@ function ProductCard({ product, rank }) {
 
         <div className={styles.footer}>
           <button
-            className={styles.addBtn}
+            className={`${styles.heartBtn} ${added ? styles.heartBtnAdded : ''}`}
             onClick={(e) => {
               e.stopPropagation()
               handleWishList()
             }}
+            title={added ? "Remove from wishlist" : "Add to wishlist"}
+            disabled={adding}
           >
-            {adding ? "Adding..." : "Add to Wish List"}
+            <svg
+              className={styles.heartIcon}
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12 21C12 21 3 14.5 3 8.5C3 5.42 5.42 3 8.5 3C10.24 3 11.91 3.81 13 5.08C14.09 3.81 15.76 3 17.5 3C20.58 3 23 5.42 23 8.5C23 14.5 12 21 12 21Z"
+                className={adding ? styles.heartAdding : added ? styles.heartFilled : styles.heartEmpty}
+              />
+            </svg>
           </button>
         </div>
       </div>
@@ -194,12 +243,12 @@ export default function TopProducts() {
         {loading
           ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
           : products.map((product, i) => (
-              <ProductCard
-                key={product.Itm_Code}
-                product={product}
-                rank={i + 1}
-              />
-            ))}
+            <ProductCard
+              key={product.Itm_Code}
+              product={product}
+              rank={i + 1}
+            />
+          ))}
       </div>
     </section>
   )

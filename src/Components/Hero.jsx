@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import '../assets/Css/Common.css'
-import { getTopSelling } from '../api/ProductApi'
+import { getHero } from '../api/ProductApi'
 
 export default function Hero() {
   const [products, setProducts] = useState([])
@@ -11,10 +11,9 @@ export default function Hero() {
 
   const IMAGE_BASE = "https://pansoraglobal.ganeshinfotech.org/Item_Images/Item/"
 
-  // Fetch products
   useEffect(() => {
     async function fetchData() {
-      const data = await getTopSelling()
+      const data = await getHero()
       setProducts(data.slice(0, 5))
     }
     fetchData()
@@ -118,7 +117,7 @@ export default function Hero() {
 
   // Safe image
   const heroImage =
-    product.Item_Images?.[1] || product.Item_Images?.[0]
+    product.Item_Images
 
   return (
     <section className="hero">
@@ -146,7 +145,7 @@ export default function Hero() {
               className="ctaSecondary"
               onClick={handleWishList}
             >
-              { adding ? "Adding..." : "Add to Wish List"}
+              { added ? "addded" : adding ? "Adding..." : "Add to Wish List"}
             </button>
           </div>
 

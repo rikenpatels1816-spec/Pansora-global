@@ -42,6 +42,20 @@ export async function getTopSelling() {
 
   return Array.isArray(data) ? data : data.data || [];
 }
+
+export async function getHero() {
+  const res = await fetch(`${BASE_URL}/HeroSection`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({})
+  });
+
+  const data = await res.json();
+
+  return Array.isArray(data) ? data : data.data || [];
+}
 export async function getProductById(id) {
   const res = await fetch(`${BASE_URL}/GetOnItem/${id}`);
 

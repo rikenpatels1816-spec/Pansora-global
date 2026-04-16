@@ -502,3 +502,62 @@
   0%   { background-position: 15% 20%, 85% 75%; }
   100% { background-position: 18% 25%, 82% 70%; }
 }
+
+/* ── Heart Wishlist Button ───────────────────────── */
+.heartBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition:
+    background 0.18s var(--ease-smooth),
+    transform 0.18s var(--ease-spring);
+}
+.heartBtn:hover:not(:disabled) {
+  background: rgba(232, 57, 75, 0.10);
+  transform: scale(1.15);
+}
+.heartBtn:active:not(:disabled) {
+  transform: scale(0.92);
+}
+.heartBtn:disabled {
+  cursor: default;
+}
+
+.heartIcon {
+  display: block;
+  transition: transform 0.22s var(--ease-spring);
+}
+.heartBtnAdded .heartIcon {
+  transform: scale(1.12);
+}
+
+/* Heart path states */
+.heartEmpty {
+  fill: none;
+  stroke: #e8394b;
+  stroke-width: 2;
+  transition: fill 0.22s ease, stroke 0.22s ease;
+}
+.heartFilled {
+  fill: #e8394b;
+  stroke: #e8394b;
+  stroke-width: 2;
+  transition: fill 0.22s ease;
+}
+.heartAdding {
+  fill: none;
+  stroke: #e8394b;
+  stroke-width: 2;
+  opacity: 0.45;
+  animation: heartPulse 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes heartPulse {
+  0%   { opacity: 0.25; }
+  100% { opacity: 0.7; }
+}
