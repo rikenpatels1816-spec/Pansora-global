@@ -70,6 +70,7 @@ img    { display: block; max-width: 100%; }
 }
 
 .searchWrap {
+  position: relative;
   flex: 1;
   max-width: 540px;
   display: flex;
@@ -1001,4 +1002,38 @@ hr.divider {
 .confirmActions .danger {
   background: red;
   color: white;
+}
+
+.searchDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  z-index: 999;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.searchItem {
+  padding: 10px 14px;
+  cursor: pointer;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.searchItem:hover {
+  background: #f5f7fb;
+}
+
+.typeTag {
+  font-size: 10px;
+  background: #1E4FA5;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
 }

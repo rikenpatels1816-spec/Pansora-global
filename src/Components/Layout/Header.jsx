@@ -9,6 +9,8 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [wishlistCount, setWishlistCount] = useState(0);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [results, setResults] = useState([]);
+const [loading, setLoading] = useState(false);
   const dropdownRef = useRef();
 
   const navigate = useNavigate();
@@ -49,6 +51,67 @@ async function fetchWishlistCount() {
   }
 }
 
+async function handleSearch(value) {
+  setSearchVal(value);
+
+  if (!value.trim()) {
+    setResults([]);
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    // 🔥 call all APIs
+    const [catRes, subRes, itemRes] = await Promise.all([
+      fetch("https://apis.ganeshinfotech.org/api/Home/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({})
+      }).then(r => r.json()),
+
+      fetch("https://apis.ganeshinfotech.org/api/Home/subcategories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({})
+      }).then(r => r.json()),
+
+      fetch("https://apis.ganeshinfotech.org/api/Home/items", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({})
+      }).then(r => r.json())
+    ]);
+
+    const categories = catRes?.data || [];
+    const subcategories = subRes?.data || [];
+    const items = itemRes?.data || [];
+
+    const query = value.toLowerCase();
+
+    const filtered = [
+      ...categories
+        .filter(c => c.Cat_Name?.toLowerCase().includes(query))
+        .map(c => ({ ...c, type: "category" })),
+
+      ...subcategories
+        .filter(s => s.SubCat_Name?.toLowerCase().includes(query))
+        .map(s => ({ ...s, type: "subcategory" })),
+
+      ...items
+        .filter(i => i.Itm_Name?.toLowerCase().includes(query))
+        .map(i => ({ ...i, type: "item" }))
+    ];
+
+    setResults(filtered.slice(0, 8)); // limit results
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+}
+
 
 useEffect(() => {
   function handleUpdate() {
@@ -60,6 +123,8 @@ useEffect(() => {
   return () =>
     window.removeEventListener("wishlistUpdated", handleUpdate);
 }, []);
+
+
 
   return (
     <header className="header" style={{ position: 'relative' }}>
@@ -82,14 +147,51 @@ useEffect(() => {
             type="text"
             placeholder="Search collections, stories, items…"
             value={searchVal}
-            onChange={e => setSearchVal(e.target.value)}
+            onChange={e => handleSearch(e.target.value)}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
           />
           {searchVal && (
             <button className="clearBtn" onClick={() => setSearchVal('')}>✕</button>
           )}
+        {(results.length > 0 || loading) && (
+  <div className="searchDropdown">
+
+    {loading && <div className="searchItem">Searching...</div>}
+
+    {results.map((item, i) => (
+      <div
+        key={i}
+        className="searchItem"
+        onClick={() => {
+          setResults([]);
+          setSearchVal("");
+
+          if (item.type === "category") {
+            navigate("/categories");
+          }
+
+          if (item.type === "subcategory") {
+            navigate(`/categories/${item.SubCat_Id}`);
+          }
+
+          if (item.type === "item") {
+            navigate(`/productdetails/${item.Itm_Code}`);
+          }
+        }}
+      >
+        <span className="typeTag">{item.type}</span>
+
+        <span>
+          {item.Cat_Name || item.SubCat_Name || item.Itm_Name}
+        </span>
+      </div>
+    ))}
+
+  </div>
+)}
         </div>
+
 
         <div className="actions">
 
