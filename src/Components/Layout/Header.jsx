@@ -91,11 +91,11 @@ async function handleSearch(value) {
 
     const filtered = [
       ...categories
-        .filter(c => c.Cat_Name?.toLowerCase().includes(query))
+        .filter(c => c.IC_Name?.toLowerCase().includes(query))
         .map(c => ({ ...c, type: "category" })),
 
       ...subcategories
-        .filter(s => s.SubCat_Name?.toLowerCase().includes(query))
+        .filter(s => s.ISC_Name?.toLowerCase().includes(query))
         .map(s => ({ ...s, type: "subcategory" })),
 
       ...items
@@ -172,7 +172,7 @@ useEffect(() => {
           }
 
           if (item.type === "subcategory") {
-            navigate(`/categories/${item.SubCat_Id}`);
+            navigate(`/categories/${item.IC_Id}`);
           }
 
           if (item.type === "item") {
@@ -183,7 +183,7 @@ useEffect(() => {
         <span className="typeTag">{item.type}</span>
 
         <span>
-          {item.Cat_Name || item.SubCat_Name || item.Itm_Name}
+          {item.IC_Name || item.ISC_Name || item.Itm_Name}
         </span>
       </div>
     ))}
