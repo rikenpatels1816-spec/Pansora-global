@@ -5,17 +5,22 @@ import emailjs from "@emailjs/browser";
 const IMAGE_BASE = "https://pansoraglobal.ganeshinfotech.org/Item_Images/Item/";
 
 export default function Wishlist() {
+  const [activeTab, setActiveTab] = useState("wishlist");
+
   const [list, setList] = useState([]);
+  const [orders, setOrders] = useState([]);
+
   const [loading, setLoading] = useState(true);
+  const [orderLoading, setOrderLoading] = useState(false);
+
   const [confirmBox, setConfirmBox] = useState(null);
 
   const navigate = useNavigate();
   const user = JSON.parse(sessionStorage.getItem("user"));
 
-  useEffect(() => {
-    fetchWishlist();
-  }, []);
-
+  /* =========================
+     FETCH WISHLIST
+  ========================== */
   async function fetchWishlist() {
     if (!user?.Cust_Code) {
       navigate("/login");
@@ -23,23 +28,61 @@ export default function Wishlist() {
     }
 
     try {
+      setLoading(true);
+
       const res = await fetch(
         `https://apis.ganeshinfotech.org/api/wishlist/GetWishlist/${user.Cust_Code}`
       );
+
       const data = await res.json();
 
-      console.log("Wishlist API:", data);
-
-      // ✅ FIX: Safe array handling
       setList(Array.isArray(data?.data) ? data.data : []);
     } catch (err) {
       console.error(err);
-      setList([]); // fallback
+      setList([]);
     } finally {
       setLoading(false);
     }
   }
 
+  /* =========================
+     FETCH ORDERS
+  ========================== */
+  async function fetchOrders() {
+    if (!user?.Cust_Code) return;
+
+    try {
+      setOrderLoading(true);
+
+      const res = await fetch(
+        `https://apis.ganeshinfotech.org/api/Customer/Get_Customer_Quoted/${user.Cust_Code}`
+      );
+
+      const data = await res.json();
+
+      setOrders(Array.isArray(data?.data) ? data.data : []);
+    } catch (err) {
+      console.error(err);
+      setOrders([]);
+    } finally {
+      setOrderLoading(false);
+    }
+  }
+
+  /* =========================
+     TAB SWITCH
+  ========================== */
+  useEffect(() => {
+    if (activeTab === "wishlist") {
+      fetchWishlist();
+    } else {
+      fetchOrders();
+    }
+  }, [activeTab]);
+
+  /* =========================
+     REMOVE SINGLE
+  ========================== */
   async function removeItem(Itm_Code) {
     try {
       const res = await fetch(
@@ -67,6 +110,9 @@ export default function Wishlist() {
     }
   }
 
+  /* =========================
+     REMOVE ALL
+  ========================== */
   async function clearWishlist() {
     try {
       const res = await fetch(
@@ -91,6 +137,9 @@ export default function Wishlist() {
     }
   }
 
+  /* =========================
+     GET QUOTE (EMAILJS)
+  ========================== */
   async function handleGetQuote() {
     if (!user) {
       navigate("/login");
@@ -122,110 +171,144 @@ export default function Wishlist() {
     }
   }
 
-  // 🔄 Loading state
-  if (loading) {
-    return (
-      <div className="wl-loading">
-        <div className="wl-spinner" />
-        <p>Loading your wishlist…</p>
-      </div>
-    );
-  }
-
-  // ❌ Empty state (FIXED)
-  if (!list || list.length === 0) {
-    return (
-      <div className="wl-empty">
-        <div className="wl-empty-icon">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
-        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-      </svg>
-    </div>
-        <h3>Your wishlist is empty</h3>
-        <p>Save items you love and come back to them anytime.</p>
-
-        <button
-          className="wl-explore-btn"
-          onClick={() => navigate("/")}
-        >
-          Explore Products →
-        </button>
-      </div>
-    );
-  }
+  /* =========================
+     UI
+  ========================== */
 
   return (
     <div className="wl-page">
 
-      {/* Header */}
-      <div className="wl-header">
-        <h2>Wishlist ({list.length})</h2>
+      {/* 🔥 TABS */}
+      <div className="tabs">
+        <button
+          className={activeTab === "wishlist" ? "tab active" : "tab"}
+          onClick={() => setActiveTab("wishlist")}
+        >
+          ❤️ Wishlist
+        </button>
 
         <button
-          className="wl-clear-btn"
-          onClick={() => setConfirmBox({ type: "all" })}
+          className={activeTab === "orders" ? "tab active" : "tab"}
+          onClick={() => setActiveTab("orders")}
         >
-          Remove All
+          📦 Orders
         </button>
       </div>
 
-      {/* Grid */}
-      <div className="wl-grid">
-        {list.map((item, i) => (
-          <div className="wl-card" key={i}>
-
-            {/* Image */}
-            <div className="wl-img-wrap">
-              {item.Item_Images?.[0] ? (
-                <img
-                  src={IMAGE_BASE + item.Item_Images[0]}
-                  alt={item.Itm_Name}
-                  onError={(e) => {
-                    e.target.style.display = "none";
-                  }}
-                />
-              ) : (
-                <div className="no-image-box">No Image</div>
-              )}
-            </div>
-
-            {/* Info */}
-            <div className="wl-body">
-              <h4>{item.Itm_Name}</h4>
-              <p>{item.Itm_Code}</p>
-            </div>
-
-            {/* Actions */}
-            <div className="wl-actions">
-              <button
-                onClick={() =>
-                  navigate(`/productdetails/${item.Itm_Code}`)
-                }
-              >
-                View
-              </button>
-
-              <button
-                onClick={() =>
-                  setConfirmBox({ type: "single", code: item.Itm_Code })
-                }
-              >
-                Remove
+      {/* =========================
+         WISHLIST TAB
+      ========================== */}
+      {activeTab === "wishlist" && (
+        <>
+          {loading ? (
+            <p>Loading wishlist...</p>
+          ) : list.length === 0 ? (
+            <div className="wl-empty">
+              <h3>Your wishlist is empty</h3>
+              <button onClick={() => navigate("/")}>
+                Explore Products →
               </button>
             </div>
+          ) : (
+            <>
+              <div className="wl-header">
+                <h2>Wishlist ({list.length})</h2>
 
+                <button
+                  className="wl-clear-btn"
+                  onClick={() => setConfirmBox({ type: "all" })}
+                >
+                  Remove All
+                </button>
+              </div>
+
+              <div className="wl-grid">
+                {list.map((item, i) => (
+                  <div className="wl-card" key={i}>
+                    <div className="wl-img-wrap">
+                      {item.Item_Images?.[0] ? (
+                        <img
+                          src={IMAGE_BASE + item.Item_Images[0]}
+                          alt={item.Itm_Name}
+                        />
+                      ) : (
+                        <div className="no-image-box">No Image</div>
+                      )}
+                    </div>
+
+                    <div className="wl-body">
+                      <h4>{item.Itm_Name}</h4>
+                      <p>{item.Itm_Code}</p>
+                    </div>
+
+                    <div className="wl-actions">
+                      <button
+                        onClick={() =>
+                          navigate(`/productdetails/${item.Itm_Code}`)
+                        }
+                      >
+                        View
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          setConfirmBox({
+                            type: "single",
+                            code: item.Itm_Code,
+                          })
+                        }
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="wl-footer">
+                <button onClick={handleGetQuote}>
+                  Get Quote for All Items
+                </button>
+              </div>
+            </>
+          )}
+        </>
+      )}
+
+      {/* =========================
+         ORDERS TAB
+      ========================== */}
+      {activeTab === "orders" && (
+        <>
+          <div className="wl-header">
+            <h2>Orders ({orders.length})</h2>
           </div>
-        ))}
-      </div>
 
-      {/* Footer */}
-      <div className="wl-footer">
-        <button onClick={handleGetQuote}>
-          Get Quote for All Items
-        </button>
-      </div>
+          {orderLoading ? (
+            <p>Loading orders...</p>
+          ) : orders.length === 0 ? (
+            <div className="wl-empty">
+              <h3>No Orders Yet</h3>
+            </div>
+          ) : (
+            <div className="wl-grid">
+              {orders.map((order, i) => (
+                <div className="wl-card" key={i}>
+                  <div className="wl-body">
+                    <h4>{order.Itm_Name}</h4>
+                    <p>Code: {order.Itm_Code}</p>
+                    <p>Status: {order.Status || "Pending"}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
 
-      {/* Confirm Modal */}
+      {/* =========================
+         CONFIRM MODAL
+      ========================== */}
       {confirmBox && (
         <div className="confirmOverlay">
           <div className="confirmBox">
@@ -236,10 +319,7 @@ export default function Wishlist() {
             </h3>
 
             <div className="confirmActions">
-              <button
-                onClick={() => setConfirmBox(null)}
-                style={{ border: "1px solid #aaa" }}
-              >
+              <button onClick={() => setConfirmBox(null)}>
                 Cancel
               </button>
 
@@ -260,7 +340,6 @@ export default function Wishlist() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

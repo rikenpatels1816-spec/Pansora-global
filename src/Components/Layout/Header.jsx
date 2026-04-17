@@ -15,7 +15,7 @@ const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const user = JSON.parse(sessionStorage.getItem("user"));
-
+  
   useEffect(() => {
     function handleClickOutside(e) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -26,6 +26,10 @@ const [loading, setLoading] = useState(false);
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+  fetchWishlistCount();
+}, []);
 
 async function fetchWishlistCount() {
   const user = JSON.parse(sessionStorage.getItem("user"));
@@ -109,6 +113,7 @@ async function handleSearch(value) {
     console.error(err);
   } finally {
     setLoading(false);
+    
   }
 }
 
@@ -131,9 +136,9 @@ useEffect(() => {
       <div className="inner">
 
         <div className="logo">
-          <div className="logoMark">
-            <img src={logo} className='logo' />
-          </div>
+          <a className="logoMark" href="/">
+            <img src={logo} className='logo'  />
+          </a>
         </div>
 
         <div className={`searchWrap ${focused ? 'searchFocused' : ''} ${searchOpen ? 'searchVisible' : ''}`}>
@@ -172,7 +177,7 @@ useEffect(() => {
           }
 
           if (item.type === "subcategory") {
-            navigate(`/categories/${item.IC_Id}`);
+            navigate(`/categories/${item.IC_Code}`);
           }
 
           if (item.type === "item") {

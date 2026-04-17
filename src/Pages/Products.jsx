@@ -14,16 +14,16 @@ function truncateWords(text, wordLimit = 50) {
 }
 
 function ProductCard({ product, index, onNavigate }) {
-  const images     = Array.isArray(product.Item_Images) ? product.Item_Images : [];
-  const hasImages  = images.length > 0;
-  const hasMulti   = images.length > 1;
+  const images = Array.isArray(product.Item_Images) ? product.Item_Images : [];
+  const hasImages = images.length > 0;
+  const hasMulti = images.length > 1;
 
-  const [imgIndex,  setImgIndex]  = useState(0);
+  const [imgIndex, setImgIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
-  const [expanded,  setExpanded]  = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
-  const desc      = product.Itm_Desc || "";
+  const desc = product.Itm_Desc || "";
   const shortDesc = truncateWords(desc, 50);
   const needsMore = desc.trim().split(/\s+/).length > 50;
 
@@ -79,9 +79,8 @@ function ProductCard({ product, index, onNavigate }) {
             key={imgIndex}
             src={currentSrc}
             alt={product.Itm_Name}
-            className={`${styles.carouselImg} ${
-              animating ? styles.imgFade : imgLoaded ? styles.imgVisible : styles.imgHidden
-            }`}
+            className={`${styles.carouselImg} ${animating ? styles.imgFade : imgLoaded ? styles.imgVisible : styles.imgHidden
+              }`}
             onLoad={() => setImgLoaded(true)}
             onError={() => setImgLoaded(true)}
           />
@@ -169,8 +168,10 @@ export default function Products() {
   const navigate = useNavigate();
 
   const [products, setProducts] = useState([]);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [categoryName, setCategoryName] = useState("");
+  const [subcategoryName, setSubCategoryName] = useState("");
 
   useEffect(() => {
     setLoading(true);
@@ -180,14 +181,79 @@ export default function Products() {
       .then((data) => {
         const list =
           Array.isArray(data) ? data :
-          data?.data          ? data.data :
-          data?.Data          ? data.Data :
-          [];
+            data?.data ? data.data :
+              data?.Data ? data.Data :
+                [];
         setProducts(list);
       })
       .catch((err) => setError(err.message || "Failed to load."))
       .finally(() => setLoading(false));
   }, [id]);
+
+ useEffect(() => {
+  async function fetchNames() {
+    try {
+      // 🔹 Step 1: Fetch subcategories
+      const subRes = await fetch(
+        "https://apis.ganeshinfotech.org/api/Home/subcategories",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({})
+        }
+      );
+
+      const subData = await subRes.json();
+
+      const subcategories = Array.isArray(subData)
+        ? subData
+        : subData?.data || [];
+
+      // ✅ Find correct subcategory using ISC_Code
+      const matchedSub = subcategories.find(
+        s => String(s.ISC_Code) === String(id)
+      );
+
+      if (!matchedSub) return;
+
+      // ✅ Set subcategory name
+      setSubCategoryName(matchedSub.ISC_Name);
+
+      // 🔥 Step 2: Get its parent category ID
+      const parentCatId = matchedSub.IC_Code;
+
+      // 🔹 Step 3: Fetch categories
+      const catRes = await fetch(
+        "https://apis.ganeshinfotech.org/api/Home/categories",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({})
+        }
+      );
+
+      const catData = await catRes.json();
+
+      const categories = Array.isArray(catData)
+        ? catData
+        : catData?.data || [];
+
+      // ✅ Find correct category using IC_Code
+      const matchedCat = categories.find(
+        c => String(c.IC_Code) === String(parentCatId)
+      );
+
+      if (matchedCat) {
+        setCategoryName(matchedCat.IC_Name);
+      }
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  fetchNames();
+}, [id]);
 
   const handleCardClick = (itemCode) => {
     navigate(`/productdetails/${itemCode}`);
@@ -201,17 +267,17 @@ export default function Products() {
       {/* Header */}
       <header className={styles.header}>
         <h1 className={styles.heading}>
-          <span>Products</span>
+          <span>{subcategoryName}</span>
         </h1>
-      <nav className={styles.breadcrumb}>
-        <button className={styles.breadcrumbLink} onClick={() => navigate("/")}>Home</button>
-        <span className={styles.breadcrumbSep}>›</span>
-        <button className={styles.breadcrumbLink} onClick={() => navigate("/categories")}>Categories</button>
-        <span className={styles.breadcrumbSep}>›</span>
-        <button className={styles.breadcrumbLink} onClick={() => navigate(-1)}>Sub Categories</button>
-        <span className={styles.breadcrumbSep}>›</span>
-        <span className={styles.breadcrumbCurrent}>Products</span>
-      </nav>
+        <nav className={styles.breadcrumb}>
+          <button className={styles.breadcrumbLink} onClick={() => navigate("/")}>Home</button>
+          <span className={styles.breadcrumbSep}>›</span>
+          <button className={styles.breadcrumbLink} onClick={() => navigate("/categories")}>Categories</button>
+          <span className={styles.breadcrumbSep}>›</span>
+          <button className={styles.breadcrumbLink} onClick={() => navigate(-1)}>{categoryName}</button>
+          <span className={styles.breadcrumbSep}>›</span>
+          <button className={styles.breadcrumbCurrent}>{subcategoryName}</button>
+        </nav>
       </header>
 
       {/* Error */}
@@ -222,8 +288,8 @@ export default function Products() {
         {loading
           ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} index={i} />)
           : products.length === 0
-          ? <div className={styles.empty}>No products found.</div>
-          : products.map((product, i) => (
+            ? <div className={styles.empty}>No products found.</div>
+            : products.map((product, i) => (
               <ProductCard
                 key={product.Itm_Code}
                 product={product}

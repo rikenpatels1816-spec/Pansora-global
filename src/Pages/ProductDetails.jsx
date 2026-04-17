@@ -36,6 +36,71 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [adding, setAdding] = useState(false);
+  const [categoryName, setCategoryName] = useState("");
+const [subcategoryName, setSubCategoryName] = useState("");
+
+useEffect(() => {
+  if (!product) return;
+
+  async function fetchNames() {
+    try {
+      // 🔹 1. Fetch subcategories
+      const subRes = await fetch(
+        "https://apis.ganeshinfotech.org/api/Home/subcategories",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({})
+        }
+      );
+
+      const subData = await subRes.json();
+
+      const subcategories = Array.isArray(subData)
+        ? subData
+        : subData?.data || [];
+
+      // ✅ Match subcategory using product.ISC_Code
+      const matchedSub = subcategories.find(
+        s => String(s.ISC_Code) === String(product.ISC_Code)
+      );
+
+      if (!matchedSub) return;
+
+      setSubCategoryName(matchedSub.ISC_Name);
+
+      // 🔹 2. Fetch categories
+      const catRes = await fetch(
+        "https://apis.ganeshinfotech.org/api/Home/categories",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({})
+        }
+      );
+
+      const catData = await catRes.json();
+
+      const categories = Array.isArray(catData)
+        ? catData
+        : catData?.data || [];
+
+      // ✅ Match category using IC_Code
+      const matchedCat = categories.find(
+        c => String(c.IC_Code) === String(matchedSub.IC_Code)
+      );
+
+      if (matchedCat) {
+        setCategoryName(matchedCat.IC_Name);
+      }
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  fetchNames();
+}, [product]);
 
   async function handleWishList() {
     if (adding) return;
@@ -158,7 +223,9 @@ export default function ProductDetails() {
         <span className={styles.breadcrumbSep}>›</span>
         <button className={styles.breadcrumbLink} onClick={() => navigate("/categories")}>Categories</button>
         <span className={styles.breadcrumbSep}>›</span>
-        <button className={styles.breadcrumbLink} onClick={() => navigate(-1)}>Products</button>
+        <button className={styles.breadcrumbLink} onClick={() => navigate("/categories")}>{categoryName || "Category"}</button>
+        <span className={styles.breadcrumbSep}>›</span>
+        <button className={styles.breadcrumbLink} onClick={() => navigate(-1)}>{subcategoryName || "SubCategory"}</button>
         <span className={styles.breadcrumbSep}>›</span>
         <span className={styles.breadcrumbCurrent}>{product?.Itm_Name || id}</span>
       </nav>

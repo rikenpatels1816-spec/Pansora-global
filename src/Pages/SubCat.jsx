@@ -10,6 +10,8 @@ function SubCatCard({ sub, index, onNavigate }) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const imgSrc = sub.ISC_Image1 ? IMAGE_BASE + sub.ISC_Image1 : null;
 
+
+
   return (
     <div
       className={styles.card}
@@ -76,6 +78,40 @@ export default function SubCat() {
   const [subCategories, setSubCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [categoryName, setCategoryName] = useState("");
+
+  useEffect(() => {
+    async function fetchCategoryName() {
+      try {
+        const res = await fetch(
+          "https://apis.ganeshinfotech.org/api/Home/categories",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({})
+          }
+        );
+
+        const data = await res.json();
+
+        const categories = Array.isArray(data)
+          ? data
+          : data?.data || [];
+
+        // 🔥 find matching category
+        const matched = categories.find(cat => String(cat.IC_Code) === String(id));
+
+        if (matched) {
+          setCategoryName(matched.IC_Name);
+        }
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    fetchCategoryName();
+  }, [id]);
 
   useEffect(() => {
     setLoading(true);
@@ -85,9 +121,9 @@ export default function SubCat() {
       .then((data) => {
         const list =
           Array.isArray(data) ? data :
-          data?.data          ? data.data :
-          data?.Data          ? data.Data :
-          [];
+            data?.data ? data.data :
+              data?.Data ? data.Data :
+                [];
         setSubCategories(list);
       })
       .catch((err) => setError(err.message || "Failed to load."))
@@ -105,18 +141,23 @@ export default function SubCat() {
       {/* Header */}
       <header className={styles.header}>
         <h1 className={styles.heading}>
-          <span>Sub Categories</span>
+          <span>{categoryName || "Sub Categories"}</span>
         </h1>
+
         <nav className={styles.breadcrumb}>
-          <button className={styles.breadcrumbLink} onClick={() => navigate("/")}>
-            Home
-          </button>
-          <span className={styles.breadcrumbSep}>›</span>
-          <button className={styles.breadcrumbLink} onClick={() => navigate("/categories")}>
+          <button onClick={() => navigate("/")}>Home</button>
+
+          <span>›</span>
+
+          <button onClick={() => navigate("/categories")}>
             Categories
           </button>
-          <span className={styles.breadcrumbSep}>›</span>
-          <span className={styles.breadcrumbCurrent}>Sub Categories</span>
+
+          <span>›</span>
+
+          <span className={styles.breadcrumbCurrent}>
+            {categoryName || "Sub Categories"}
+          </span>
         </nav>
       </header>
 
@@ -128,8 +169,8 @@ export default function SubCat() {
         {loading
           ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} index={i} />)
           : subCategories.length === 0
-          ? <div className={styles.empty}>No sub-categories found.</div>
-          : subCategories.map((sub, i) => (
+            ? <div className={styles.empty}>No sub-categories found.</div>
+            : subCategories.map((sub, i) => (
               <SubCatCard
                 key={sub.ISC_Code}
                 sub={sub}
