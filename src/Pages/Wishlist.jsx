@@ -108,7 +108,7 @@ export default function Wishlist() {
     if (!user?.Cust_Code) return;
     try {
       setOrderLoading(true);
-      const res  = await fetch(`https://apis.ganeshinfotech.org/api/Customer/Get_Customer_Quoted/${user.Cust_Code}`);
+      const res  = await fetch(`https://apis.ganeshinfotech.org/api/Quotes/Get_Customer_Quoted/${user.Cust_Code}`);
       const data = await res.json();
       setOrders(Array.isArray(data?.data) ? data.data : []);
     } catch { setOrders([]); }
@@ -135,43 +135,124 @@ export default function Wishlist() {
     } catch { showToast("Failed to remove item", "error"); }
   }
 
-  async function clearWishlist() {
-    try {
-      const res  = await fetch("https://apis.ganeshinfotech.org/api/wishlist/DeleteWishList", {
+ async function clearWishlist() {
+  try {
+    console.log("Clearing for:", user?.Cust_Code);
+
+    const res = await fetch(
+      "https://apis.ganeshinfotech.org/api/wishlist/DeleteWishList",
+      {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ Cust_Code: user.Cust_Code }),
-      });
-      const data = await res.json();
-      if (data?.success) {
-        setList([]);
-        window.dispatchEvent(new Event("wishlistUpdated"));
-        showToast("Wishlist cleared");
+        body: JSON.stringify({ Cust_Code: user?.Cust_Code }),
       }
-    } catch { showToast("Failed to clear wishlist", "error"); }
+    );
+
+    let data = null;
+
+    try {
+      data = await res.json(); // may fail
+    } catch {
+      console.log("No JSON response from API");
+    }
+
+    console.log("Delete API Response:", data);
+
+    // ✅ IMPORTANT FIX
+    if (res.ok) {
+      setList([]);
+      window.dispatchEvent(new Event("wishlistUpdated"));
+      showToast("Wishlist cleared");
+    } else {
+      showToast("Failed to clear wishlist", "error");
+    }
+
+  } catch (err) {
+    console.error(err);
+    showToast("Failed to clear wishlist", "error");
   }
+}
 
   async function handleGetQuote() {
-    if (!user) { navigate("/login"); return; }
-    const wishlistText = list.map((item, i) => `${i + 1}. ${item.Itm_Name} (${item.Itm_Code})`).join("\n");
-    try {
-      setQuoteLoading(true);
-      await emailjs.send(
-        "service_vv9r9q3", "template_ko3j82v",
-        { customer_name: user.Cust_Name, customer_email: user.Cust_Email, message: wishlistText },
-        "09nWHi2weMuj-prpZ"
-      );
-      showToast("Quote request sent successfully!");
-    } catch { showToast("Failed to send quote request", "error"); }
-    finally { setQuoteLoading(false); }
+  if (!user) {
+    navigate("/login");
+    return;
   }
+
+  if (list.length === 0) {
+    showToast("Wishlist is empty", "error");
+    return;
+  }
+
+  const wishlistText = list
+    .map((item, i) => `${i + 1}. ${item.Itm_Name} (${item.Itm_Code})`)
+    .join("\n");
+
+  try {
+    setQuoteLoading(true);
+
+    // 🔥 1. SAVE TO BACKEND (VERY IMPORTANT)
+    await Promise.all(
+      list.map((item) =>
+        fetch(
+          "https://apis.ganeshinfotech.org/api/Quotes/AddCustomer_Quoted",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              Cust_Code: user.Cust_Code,
+              Itm_Code: item.Itm_Code,
+            }),
+          }
+        )
+      )
+    );
+
+    // 📩 2. SEND TO ADMIN
+    await emailjs.send(
+      "service_yuiht7t",
+      "template_dykw8nj",
+      {
+        customer_name: user.Cust_Name,
+        customer_email: user.Cust_Email,
+        message: wishlistText,
+      },
+      "rk9oziPaoGLqvG4Lf"
+    );
+
+    // 📧 3. AUTO REPLY TO CUSTOMER
+    await emailjs.send(
+      "service_yuiht7t",
+      "template_dutvz9a",
+      {
+        customer_name: user.Cust_Name,
+        customer_email: user.Cust_Email,
+        message: wishlistText,
+      },
+      "rk9oziPaoGLqvG4Lf"
+    );
+
+    showToast("Quote request sent successfully!");
+
+    // 🔄 OPTIONAL: Refresh orders tab instantly
+    fetchOrders();
+
+  } catch (err) {
+    console.error(err);
+    showToast("Failed to send quote request", "error");
+  } finally {
+    setQuoteLoading(false);
+  }
+}
 
   return (
     <div className={styles.page}>
 
       {/* ── CONTENT ── */}
       <div className={styles.contentWrap}>
-
+      
         {/* TABS */}
         <div className={styles.tabBar}>
           <button
@@ -186,8 +267,11 @@ export default function Wishlist() {
             className={`${styles.tab} ${activeTab === "orders" ? styles.tabActive : ""}`}
             onClick={() => setActiveTab("orders")}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-            Orders
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chat-dots" viewBox="0 0 16 16">
+  <path d="M5 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+  <path d="m2.165 15.803.02-.004c1.83-.363 2.948-.842 3.468-1.105A9 9 0 0 0 8 15c4.418 0 8-3.134 8-7s-3.582-7-8-7-8 3.134-8 7c0 1.76.743 3.37 1.97 4.6a10.4 10.4 0 0 1-.524 2.318l-.003.011a11 11 0 0 1-.244.637c-.079.186.074.394.273.362a22 22 0 0 0 .693-.125m.8-3.108a1 1 0 0 0-.287-.801C1.618 10.83 1 9.468 1 8c0-3.192 3.004-6 7-6s7 2.808 7 6-3.004 6-7 6a8 8 0 0 1-2.088-.272 1 1 0 0 0-.711.074c-.387.196-1.24.57-2.634.893a11 11 0 0 0 .398-2"/>
+</svg>
+            Quoted
             {orders.length > 0 && <span className={styles.tabBadge}>{orders.length}</span>}
           </button>
         </div>
@@ -292,8 +376,8 @@ export default function Wishlist() {
                 <div className={styles.emptyIconWrap}>
                   <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1E4FA5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                 </div>
-                <h3 className={styles.emptyTitle}>No orders yet</h3>
-                <p className={styles.emptyText}>Your quoted orders will appear here once you've requested a quote.</p>
+                <h3 className={styles.emptyTitle}>No quotes yet</h3>
+                <p className={styles.emptyText}>Your quotes will appear here once you've requested a quote.</p>
                 <button className={styles.emptyBtn} onClick={() => navigate("/")}>
                   Browse Products
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -303,7 +387,7 @@ export default function Wishlist() {
               <>
                 <div className={styles.sectionRow}>
                   <div className={styles.sectionLeft}>
-                    <h2 className={styles.sectionTitle}>Your Orders</h2>
+                    <h2 className={styles.sectionTitle}>Your Quotes</h2>
                     <span className={styles.sectionCount}>{orders.length}</span>
                   </div>
                 </div>

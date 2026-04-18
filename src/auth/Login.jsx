@@ -164,7 +164,7 @@ console.log("Register Response:", data);
                   <label>Contact</label>
                   <input
                     type="tel"
-                    placeholder="+91 ..."
+                    placeholder="+1 ..."
                     value={registerForm.Cust_Contact}
                     onChange={(e) =>
                       setRegisterForm({ ...registerForm, Cust_Contact: e.target.value })

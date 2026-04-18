@@ -386,16 +386,12 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  opacity: 0;
-  transform: scale(0.8);
+  opacity: 1;
+  transform: scale(1);
   transition: all 0.2s var(--ease);
   font-family: inherit;
 }
 
-.wlCard:hover .wlRemoveFloat {
-  opacity: 1;
-  transform: scale(1);
-}
 
 .wlRemoveFloat:hover {
   background: var(--red-sale);

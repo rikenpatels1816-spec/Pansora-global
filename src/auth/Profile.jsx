@@ -18,35 +18,54 @@ export default function Profile() {
   }
 
   async function handleUpdate() {
-    setLoading(true);
-    setMessage("");
+  setLoading(true);
+  setMessage("");
 
-    try {
-      // 🔥 Replace with your API later
-      console.log("Updated Data:", form);
-
-      // simulate API
-      setTimeout(() => {
-        // update session
-        const updatedUser = {
-          ...userData,
+  try {
+    const res = await fetch(
+      "https://apis.ganeshinfotech.org/api/Customer/CustomerDetails",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          Cust_Code: userData?.Cust_Code,
           Cust_Name: form.name,
           Cust_Email: form.email,
           Cust_Contact: form.contact,
           Cust_Address: form.address,
-        };
+          Statuscode: 1,
+        }),
+      }
+    );
 
-        sessionStorage.setItem("user", JSON.stringify(updatedUser));
+    const data = await res.json();
+    console.log("Update Response:", data);
 
-        setMessage("Profile updated successfully ✅");
-        setLoading(false);
-      }, 1000);
+    if (data?.success || data?.Statuscode === 1) {
+      const updatedUser = {
+        ...userData,
+        Cust_Name: form.name,
+        Cust_Email: form.email,
+        Cust_Contact: form.contact,
+        Cust_Address: form.address,
+      };
 
-    } catch (err) {
-      setMessage("Update failed ❌");
-      setLoading(false);
+      sessionStorage.setItem("user", JSON.stringify(updatedUser));
+
+      setMessage("Profile updated successfully ✅");
+    } else {
+      setMessage("Update failed ");
     }
+
+  } catch (err) {
+    console.error(err);
+    setMessage("Something went wrong");
+  } finally {
+    setLoading(false);
   }
+}
 
   return (
     <div style={styles.container}>
@@ -67,7 +86,7 @@ export default function Profile() {
           value={form.email}
           onChange={handleChange}
           placeholder="Email"
-          style={styles.input}
+          style={styles.hide }
         />
 
         <input
@@ -145,4 +164,7 @@ const styles = {
     textAlign: "center",
     fontSize: "14px",
   },
+  hide: {
+    display: "none"
+  }
 };

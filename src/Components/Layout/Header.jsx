@@ -43,8 +43,6 @@ async function fetchWishlistCount() {
 
     const data = await res.json();
 
-    console.log("Wishlist Count Response:", data);
-
     // adjust based on API response
     const list = data?.data || [];
 
