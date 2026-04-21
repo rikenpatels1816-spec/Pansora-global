@@ -65,16 +65,37 @@ export default function ContactUs() {
     message: form.message,
   };
 
+  // 📩 1. SEND TO ADMIN
   emailjs
     .send(
-      "service_vv9r9q3",   
-      "template_raquwae",  
+      "service_vv9r9q3",
+      "template_raquwae",
       templateParams,
       "09nWHi2weMuj-prpZ"
     )
     .then(
-      (response) => {
-        console.log("SUCCESS!", response.status, response.text);
+      async (response) => {
+        console.log("ADMIN MAIL SUCCESS!", response.status);
+
+        // 📧 2. AUTO REPLY TO CUSTOMER
+        try {
+          await emailjs.send(
+            "service_vv9r9q3",
+            "template_pjuear5",   // ✅ YOUR TEMPLATE
+            {
+              name: form.name,
+              email: form.email,
+              message: form.message,
+            },
+            "09nWHi2weMuj-prpZ"
+          );
+
+          console.log("AUTO REPLY SENT");
+
+        } catch (err) {
+          console.error("Auto reply failed:", err);
+        }
+
         setSubmitted(true);
       },
       (error) => {
